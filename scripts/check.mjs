@@ -81,7 +81,7 @@ for (const file of walk(dist).filter((f) => f.endsWith(".html"))) {
 
 // 3. Regras do conteúdo da página principal
 const index = readFileSync(join(dist, "index.html"), "utf8");
-for (const id of ["oportunidade", "como-funciona", "quem-conduz", "atividades", "transparencia", "credibilidade", "cadastro", "perguntas"]) {
+for (const id of ["oportunidade", "captacao", "como-funciona", "quem-conduz", "atividades", "transparencia", "credibilidade", "cadastro", "perguntas"]) {
   if (!index.includes(`id="${id}"`)) fail(`Seção ausente: #${id}`);
 }
 if (!index.includes(parceiroInternacional.nome)) fail("Nome do parceiro internacional não aparece na página");

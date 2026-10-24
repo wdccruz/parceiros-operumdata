@@ -73,6 +73,7 @@ const glyphs = {
 
 const nav = [
   ["oportunidade", "Oportunidade"],
+  ["captacao", "Na prática"],
   ["como-funciona", "Como funciona"],
   ["quem-conduz", "Quem conduz"],
   ["transparencia", "Transparência"],
@@ -294,11 +295,137 @@ const oportunidade = () => `
     </div>
   </section>`;
 
+// Ilustração conceitual da captação: profissional em atividade real com
+// equipamento DEDICADO (capacete, peito, suporte fixo). Nunca celular.
+const captureScene = () => `
+  <svg class="cap-scene" viewBox="0 0 640 440" role="img" aria-labelledby="cap-scene-title cap-scene-desc">
+    <title id="cap-scene-title">Ilustração: profissional trabalhando em uma bancada com câmeras dedicadas</title>
+    <desc id="cap-scene-desc">Um profissional com capacete, luvas e colete trabalha em uma bancada. Uma câmera presa ao capacete e outra presa ao peito registram as mãos e a ferramenta. Uma câmera compacta em suporte fixo registra o posto de trabalho.</desc>
+    <defs>
+      <pattern id="cap-grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="rgba(201,209,219,0.05)" stroke-width="1"/></pattern>
+    </defs>
+    <rect width="640" height="440" fill="url(#cap-grid)"/>
+
+    <!-- campos de visão das câmeras -->
+    <g class="cap-fov">
+      <polygon class="cap-fov__cone" style="--d:0s" points="292,99 382,240 500,240"/>
+      <polygon class="cap-fov__cone" style="--d:1.2s" points="284,213 372,262 488,268"/>
+      <polygon class="cap-fov__cone" style="--d:2.4s" points="574,181 404,236 512,280"/>
+    </g>
+
+    <!-- área registrada -->
+    <g class="cap-frame">
+      <path d="M372 226v-10h14M512 216h14v10M526 282v10h-14M386 292h-14v-10"/>
+      <text x="372" y="206">ÁREA DE TRABALHO</text>
+    </g>
+    <rect class="cap-scan" x="374" y="218" width="2" height="72"/>
+
+    <!-- piso e bancada -->
+    <path class="cap-line" d="M24 400H616"/>
+    <path class="cap-line" d="M340 294V400M566 294V400M340 360H566"/>
+    <rect class="cap-solid" x="326" y="280" width="256" height="14"/>
+    <!-- peça na bancada -->
+    <rect class="cap-solid" x="404" y="250" width="92" height="30"/>
+    <path class="cap-line" d="M420 250v30M480 250v30"/>
+    <circle class="cap-line" cx="450" cy="265" r="6"/>
+
+    <!-- profissional -->
+    <g class="cap-worker">
+      <path class="cap-limb" d="M242 272L238 336L236 394"/>
+      <path class="cap-limb" d="M266 272L282 336L292 394"/>
+      <path class="cap-boot" d="M226 394h22v8h-22zM284 394h24v8h-24z"/>
+      <path class="cap-limb cap-limb--back" d="M238 178L246 238L330 258"/>
+      <path class="cap-body" d="M232 164H278L284 274H226Z"/>
+      <path class="cap-stripe" d="M229 236H281"/>
+      <path class="cap-stripe" d="M231 252H282"/>
+      <!-- arnês peitoral -->
+      <path class="cap-harness" d="M238 166L258 206M274 166L262 206"/>
+      <path class="cap-neck" d="M254 150v14"/>
+      <circle class="cap-head" cx="256" cy="128" r="22"/>
+      <path class="cap-helmet" d="M230 124a27 27 0 0 1 54 0Z"/>
+      <path class="cap-line" d="M226 124H292"/>
+      <path class="cap-limb" d="M272 176L302 228L346 260"/>
+      <circle class="cap-glove" cx="348" cy="261" r="7"/>
+      <circle class="cap-glove" cx="332" cy="258" r="7"/>
+      <!-- ferramenta -->
+      <path class="cap-tool" d="M352 259L404 254"/>
+      <circle class="cap-tool" cx="410" cy="254" r="7"/>
+    </g>
+
+    <!-- 01 câmera no capacete -->
+    <g class="cap-cam">
+      <rect x="262" y="90" width="24" height="14" rx="2"/>
+      <path d="M270 104v6"/>
+      <circle class="cap-cam__lens" cx="290" cy="97" r="5"/>
+    </g>
+    <!-- 02 câmera no peito -->
+    <g class="cap-cam">
+      <rect x="252" y="204" width="24" height="18" rx="2"/>
+      <circle class="cap-cam__lens" cx="281" cy="213" r="5"/>
+    </g>
+    <!-- 03 câmera compacta em suporte fixo -->
+    <g class="cap-cam">
+      <path class="cap-line" d="M598 196V400M584 400L598 372L612 400"/>
+      <rect x="578" y="172" width="32" height="20" rx="2"/>
+      <circle class="cap-cam__lens" cx="574" cy="182" r="6"/>
+    </g>
+
+    <!-- marcadores -->
+    <g class="cap-pin"><circle cx="300" cy="66" r="12"/><text x="300" y="70">01</text><path d="M296 78L290 90"/></g>
+    <g class="cap-pin"><circle cx="196" cy="214" r="12"/><text x="196" y="218">02</text><path d="M208 214H250"/></g>
+    <g class="cap-pin"><circle cx="596" cy="140" r="12"/><text x="596" y="144">03</text><path d="M596 152V170"/></g>
+  </svg>`;
+
+const equipamentos = [
+  ["01", "Câmera presa ao capacete", "Registra o ponto de vista do profissional: mãos, ferramentas e materiais."],
+  ["02", "Câmera corporal no peito", "Acompanha os movimentos de perto, sem ocupar as mãos de quem trabalha."],
+  ["03", "Câmera compacta em suporte fixo", "Mostra o posto de trabalho por inteiro, em posição definida pelo protocolo."],
+];
+
+const captacao = () => `
+  <section class="section section--capture" id="captacao" aria-labelledby="captacao-title">
+    <div class="shell">
+      ${sectionHeading({
+        index: "B",
+        label: "Como é a captação",
+        title: `<span id="captacao-title">Captação estruturada, com equipamento dedicado.</span>`,
+        lead: [
+          "O profissional faz o trabalho de sempre, no ambiente de sempre. O registro é feito com câmeras de captura dedicadas, presas ao capacete, ao corpo ou a um suporte, seguindo um protocolo definido. Não é filmagem com celular nem gravação improvisada.",
+        ],
+      })}
+      <div class="capture">
+        <figure class="capture__figure reveal" data-anim>
+          <div class="capture__hud" aria-hidden="true"><span><i></i>Captura dedicada</span><span>Protocolo do programa</span></div>
+          ${captureScene()}
+          <figcaption>Ilustração conceitual. Equipamentos, posições e protocolo são definidos pelos requisitos de cada programa.</figcaption>
+        </figure>
+        <div class="capture__side">
+          <ol class="capture__gear">
+            ${equipamentos
+              .map(
+                ([n, t, d], i) => `
+              <li class="reveal" style="--i:${i}">
+                <span class="capture__num" aria-hidden="true">${n}</span>
+                <div><h3>${t}</h3><p>${d}</p></div>
+              </li>`,
+              )
+              .join("")}
+          </ol>
+          <ul class="capture__facts reveal">
+            <li><span><strong>Trabalho real.</strong> Sem encenação: a atividade segue o ritmo normal da empresa.</span></li>
+            <li><span><strong>Protocolo definido.</strong> O que é registrado, por quanto tempo e com qual equipamento é estabelecido pelo programa.</span></li>
+          </ul>
+        </div>
+      </div>
+      <p class="note reveal"><strong>Somente com autorização.</strong> A captação só acontece depois da autorização da empresa, do consentimento dos profissionais envolvidos e da confirmação de que o ambiente atende aos requisitos do programa.</p>
+    </div>
+  </section>`;
+
 const comoFunciona = () => `
   <section class="section section--alt" id="como-funciona" aria-labelledby="como-title">
     <div class="shell">
       ${sectionHeading({
-        index: "B",
+        index: "C",
         label: "Como funciona",
         title: `<span id="como-title">Cinco etapas, cada uma com sua decisão.</span>`,
         lead: ["Você avança apenas quando a etapa anterior estiver clara. Manifestar interesse é só o começo da conversa."],
@@ -342,7 +469,7 @@ const quemConduz = () => {
   <section class="section" id="quem-conduz" aria-labelledby="quem-title">
     <div class="shell">
       ${sectionHeading({
-        index: "C",
+        index: "D",
         label: "Quem está por trás do programa",
         title: `<span id="quem-title">Uma coordenação no Brasil. Um programa internacional.</span>`,
         lead: ["Cada organização tem um papel definido. Você sabe com quem fala, quem define as regras e quem acompanha a operação."],
@@ -389,7 +516,7 @@ const atividades = () => `
   <section class="section section--alt" id="atividades" aria-labelledby="atividades-title">
     <div class="shell">
       ${sectionHeading({
-        index: "D",
+        index: "E",
         label: "Empresas e atividades",
         title: `<span id="atividades-title">Ambientes profissionais reais, de vários setores.</span>`,
         lead: ["Programas de coleta buscam atividades manuais e técnicas executadas por profissionais em seu ambiente de trabalho."],
@@ -415,7 +542,7 @@ const transparenciaSec = () => `
   <section class="section" id="transparencia" aria-labelledby="transp-title">
     <div class="shell">
       ${sectionHeading({
-        index: "E",
+        index: "F",
         label: "Segurança, autorização e transparência",
         title: `<span id="transp-title">Regras claras antes de qualquer gravação.</span>`,
         lead: ["Estes são os princípios que orientam a participação. Os procedimentos detalhados de cada programa são apresentados por escrito antes do compromisso."],
@@ -451,7 +578,7 @@ const credibilidade = () => {
   <section class="section section--alt" id="credibilidade" aria-labelledby="cred-title">
     <div class="shell">
       ${sectionHeading({
-        index: "F",
+        index: "G",
         label: "Credibilidade institucional",
         title: `<span id="cred-title">Saiba exatamente com quem está falando.</span>`,
         lead: [
@@ -502,7 +629,7 @@ const formulario = () => {
   <section class="section" id="cadastro" aria-labelledby="cadastro-title">
     <div class="shell form-layout">
       <div class="form-intro reveal">
-        <div class="section-heading__meta"><span class="section-heading__index">G</span><span>Cadastro de interesse</span></div>
+        <div class="section-heading__meta"><span class="section-heading__index">H</span><span>Cadastro de interesse</span></div>
         <h2 id="cadastro-title">Conte um pouco sobre sua empresa.</h2>
         <p>Com essas informações, a OperumData avalia se há possível compatibilidade e, se houver, entra em contato para uma conversa de qualificação.</p>
         <ul class="form-facts">
@@ -595,7 +722,7 @@ const faq = () => `
   <section class="section section--alt" id="perguntas" aria-labelledby="faq-title">
     <div class="shell faq-layout">
       ${sectionHeading({
-        index: "H",
+        index: "I",
         label: "Perguntas frequentes",
         title: `<span id="faq-title">Dúvidas comuns de quem tem uma empresa.</span>`,
       })}
@@ -695,6 +822,7 @@ ${header()}
 <main id="conteudo">
 ${hero()}
 ${oportunidade()}
+${captacao()}
 ${comoFunciona()}
 ${quemConduz()}
 ${atividades()}
