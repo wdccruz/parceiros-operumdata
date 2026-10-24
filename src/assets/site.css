@@ -527,8 +527,12 @@ button, a, summary { -webkit-tap-highlight-color: transparent; }
 
 @media (max-width: 960px) {
   .split, .capture, .org-panels, .trust, .form-layout, .faq-layout { grid-template-columns: 1fr; }
-  .scene { inset: 0; opacity: 0.9; }
-  .hero__shade { background: linear-gradient(180deg, rgba(5, 5, 6, 0.55) 0%, rgba(5, 5, 6, 0.78) 40%, rgba(5, 5, 6, 0.92) 75%, #050506 100%), linear-gradient(90deg, rgba(5, 5, 6, 0.6), rgba(5, 5, 6, 0.1)); }
+  /* Celular e tablet: a cena ocupa o topo do hero, bem visível,
+     e o texto começa sobre a parte inferior dela, com gradiente. */
+  .scene { inset: 0 0 auto 0; height: clamp(360px, 62vw, 520px); }
+  .scene__svg { inset: 0; width: 100%; height: 100%; }
+  .hero__shade { background: linear-gradient(180deg, rgba(5, 5, 6, 0.15) 0, rgba(5, 5, 6, 0.1) 120px, rgba(5, 5, 6, 0.8) clamp(280px, 52vw, 420px), #050506 clamp(360px, 62vw, 520px), #050506 100%); }
+  .hero__inner { padding-top: clamp(280px, 54vw, 440px); }
   .hud__tags, .hud__timeline { display: none; }
   .form-intro { position: static; }
   .journey__steps { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 20px; }
