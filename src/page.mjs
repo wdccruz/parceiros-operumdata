@@ -101,52 +101,61 @@ function handSkeleton(cx, cy, deg, scale, mirror, cls) {
   return `<g class="kp ${cls}"><path d="${lines}"/>${dots}</g>`;
 }
 
-const captureConsole = () => `
-  <figure class="console" aria-labelledby="console-cap" data-anim>
-    <div class="console__bar" aria-hidden="true">
-      <span><i class="console__rec"></i>Cam 01 · Capacete</span>
-      <span class="console__tc" data-timecode>00:14:32</span>
-    </div>
-    <div class="console__view">
-      <svg class="console__scene" viewBox="0 0 560 380" role="img" aria-label="Vista de uma câmera de capacete sobre uma bancada de trabalho, com mãos, ferramenta e peça identificadas.">
-        <defs>
-          <linearGradient id="cs-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17140f"/><stop offset="1" stop-color="#0b0a08"/></linearGradient>
-          <linearGradient id="cs-wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3a2a1a"/><stop offset="0.5" stop-color="#4a3522"/><stop offset="1" stop-color="#36271a"/></linearGradient>
-          <linearGradient id="cs-metal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8d949e"/><stop offset="1" stop-color="#4a4f57"/></linearGradient>
-          <radialGradient id="cs-vig" cx="0.5" cy="0.5" r="0.75"><stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.75"/></radialGradient>
-        </defs>
-        <rect width="560" height="380" fill="url(#cs-bg)"/>
-        <g opacity="0.9">
-          <rect x="40" y="150" width="480" height="150" fill="url(#cs-wood)" transform="rotate(-4 280 225)"/>
-          <path d="M44 190C180 184 330 178 516 166M46 222C190 214 330 208 518 196M48 258C200 250 340 242 520 232" stroke="#5a4229" stroke-width="2" fill="none" opacity="0.6" transform="rotate(-4 280 225)"/>
-          <rect x="230" y="190" width="120" height="44" rx="3" fill="url(#cs-metal)" transform="rotate(-4 290 212)"/>
-          <circle cx="262" cy="211" r="6" fill="#2a2d33"/><circle cx="318" cy="207" r="6" fill="#2a2d33"/>
-          <rect x="372" y="118" width="26" height="120" rx="8" fill="#20232a" transform="rotate(32 385 178)"/>
-          <rect x="378" y="96" width="14" height="40" rx="3" fill="#9aa1ab" transform="rotate(32 385 178)"/>
+const heroScene = () => `
+  <div class="scene" aria-hidden="true" data-anim data-parallax>
+    <svg class="scene__svg" viewBox="-80 -90 1200 860" preserveAspectRatio="xMidYMid slice" focusable="false">
+      <defs>
+        <linearGradient id="sc-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#15120d"/><stop offset="1" stop-color="#07070a"/></linearGradient>
+        <linearGradient id="sc-wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#33251a"/><stop offset="0.5" stop-color="#4a3523"/><stop offset="1" stop-color="#2e2118"/></linearGradient>
+        <linearGradient id="sc-metal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9aa1ab"/><stop offset="1" stop-color="#454a52"/></linearGradient>
+        <radialGradient id="sc-light" cx="0.62" cy="0.5" r="0.55"><stop offset="0" stop-color="#ff5a1f" stop-opacity="0.16"/><stop offset="1" stop-color="#ff5a1f" stop-opacity="0"/></radialGradient>
+      </defs>
+      <rect x="-80" y="-90" width="1200" height="860" fill="url(#sc-bg)"/>
+      <rect x="-80" y="-90" width="1200" height="860" fill="url(#sc-light)"/>
+
+      <g class="scene__layer scene__layer--bench" data-depth="0.4">
+        <g transform="rotate(-6 640 420)">
+          <rect x="250" y="270" width="820" height="290" fill="url(#sc-wood)"/>
+          <path d="M250 320C480 312 760 300 1070 290M250 380C500 370 760 362 1070 352M250 450C480 440 760 430 1070 420M250 512C500 502 760 494 1070 486" stroke="#5c432b" stroke-width="2.5" fill="none" opacity="0.55"/>
+          <rect x="250" y="270" width="820" height="6" fill="#000" opacity="0.35"/>
         </g>
-        <rect width="560" height="380" fill="url(#cs-vig)"/>
+        <g transform="rotate(-6 640 420)">
+          <rect x="500" y="350" width="230" height="84" rx="5" fill="url(#sc-metal)"/>
+          <rect x="500" y="350" width="230" height="10" rx="3" fill="#fff" opacity="0.12"/>
+          <circle cx="560" cy="392" r="11" fill="#24272d"/><circle cx="670" cy="392" r="11" fill="#24272d"/>
+          <circle cx="560" cy="392" r="4" fill="#5a606b"/><circle cx="670" cy="392" r="4" fill="#5a606b"/>
+        </g>
+        <g class="bbox bbox--part"><rect x="486" y="326" width="262" height="124"/><text x="486" y="316">PEÇA</text></g>
+      </g>
 
-        <g class="bbox bbox--part"><rect x="222" y="176" width="140" height="66"/><text x="222" y="170">PEÇA</text></g>
-        <g class="bbox bbox--tool"><rect x="350" y="96" width="92" height="150"/><text x="350" y="90">FERRAMENTA</text></g>
-        <g class="bbox bbox--hand"><rect x="150" y="178" width="100" height="116"/><text x="150" y="312">MÃO ESQUERDA</text></g>
-        <g class="bbox bbox--hand"><rect x="318" y="150" width="110" height="122"/><text x="318" y="290">MÃO DIREITA</text></g>
+      <g class="scene__layer scene__layer--hands" data-depth="1">
+        <g class="act act--left">
+          <g class="bbox bbox--hand"><rect x="372" y="360" width="176" height="200"/><text x="372" y="584">MÃO ESQUERDA</text></g>
+          ${handSkeleton(452, 548, 30, 1.85, true, "kp--left")}
+        </g>
+        <g class="act act--right">
+          <g transform="rotate(32 760 300)">
+            <rect x="730" y="150" width="54" height="230" rx="16" fill="#1d2026"/>
+            <rect x="742" y="110" width="30" height="72" rx="5" fill="#a3aab4"/>
+            <rect x="730" y="290" width="54" height="10" fill="#ff5a1f" opacity="0.75"/>
+          </g>
+          <g class="bbox bbox--tool"><rect x="690" y="96" width="190" height="300"/><text x="690" y="86">FERRAMENTA</text></g>
+          <g class="bbox bbox--hand"><rect x="640" y="290" width="200" height="210"/><text x="640" y="524">MÃO DIREITA</text></g>
+          ${handSkeleton(724, 486, -16, 1.9, false, "kp--right")}
+        </g>
+      </g>
 
-        ${handSkeleton(198, 290, 28, 1.05, true, "kp--left")}
-        ${handSkeleton(372, 262, -14, 1.05, false, "kp--right")}
+      <rect class="scene__scan" x="380" y="80" width="2" height="540"/>
+      <g class="scene__reticle"><path d="M360 70V40h40M920 40h40v30M960 630v30h-40M400 660h-40v-30"/></g>
+      <circle class="scene__pulse" cx="760" cy="300" r="20"/>
+    </svg>
+  </div>`;
 
-        <g class="reticle" aria-hidden="true"><path d="M16 36V16h20M524 16h20v20M544 344v20h-20M36 364H16v-20"/></g>
-      </svg>
-      <ul class="console__tags" aria-hidden="true">
-        <li>Ação: montagem</li>
-        <li>Etapa 3 de 5</li>
-      </ul>
-    </div>
-    <div class="console__timeline" aria-hidden="true">
-      <div class="console__segments"><span>Preparo</span><span>Corte</span><span class="is-on">Montagem</span><span>Acabamento</span></div>
-      <i class="console__head"></i>
-    </div>
-    <figcaption id="console-cap">Representação ilustrativa de captura com câmera de capacete e estruturação dos registros.</figcaption>
-  </figure>`;
+const heroHud = () => `
+  <div class="hud" aria-hidden="true">
+    <div class="hud__top"><span><i class="hud__rec"></i>Cam 01 · Capacete</span><span class="hud__tc" data-timecode>00:14:32</span></div>
+    <div class="hud__timeline"><div class="hud__segments"><span>Preparo</span><span>Corte</span><span class="is-on">Montagem</span><span>Acabamento</span></div><i class="hud__head"></i></div>
+  </div>`;
 
 // Câmera de captura dedicada (render de produto, ilustrativo).
 const cameraRender = () => `
@@ -229,7 +238,7 @@ const perguntas = [
   ],
   [
     "Como funciona a remuneração?",
-    "Os critérios são definidos nas condições de cada programa e apresentados por escrito antes do compromisso. Não há valor fixo divulgado nem remuneração automática.",
+    "Empresas aprovadas e contratadas podem ser remuneradas pela participação. Os critérios e valores são definidos nas condições de cada programa e apresentados por escrito antes do compromisso. Não há valor fixo divulgado nem remuneração automática.",
   ],
   [
     "Existe garantia de aprovação ou de ganhos?",
@@ -301,12 +310,14 @@ const header = () => `
 
 const hero = () => `
   <section class="hero" aria-labelledby="hero-title">
-    <div class="hero__glow" aria-hidden="true"></div>
+    ${heroScene()}
+    <div class="hero__shade" aria-hidden="true"></div>
+    ${heroHud()}
     <div class="shell hero__inner">
       <div class="hero__content">
-        <p class="kicker"><span class="signal-dot" aria-hidden="true"></span>Programa internacional de coleta de dados</p>
-        <h1 id="hero-title">O trabalho que sua empresa já realiza pode gerar <em>uma nova fonte de receita.</em></h1>
-        <p class="hero__lead">A OperumData conecta empresas brasileiras a programas internacionais de coleta de dados de atividades profissionais reais.</p>
+        <p class="kicker"><span class="signal-dot" aria-hidden="true"></span>Programa internacional · Participação remunerada</p>
+        <h1 id="hero-title">O trabalho que sua empresa já realiza pode gerar <em>receita complementar.</em></h1>
+        <p class="hero__lead">A OperumData aproxima empresas brasileiras de programas internacionais de coleta de dados de atividades profissionais reais. Empresas compatíveis podem participar e ser remuneradas conforme os requisitos e as condições de cada programa.</p>
         <div class="hero__actions">
           <a class="btn btn--primary btn--lg" href="#cadastro">Quero conhecer a oportunidade <span class="btn__arrow" aria-hidden="true">→</span></a>
           <a class="btn btn--ghost btn--lg" href="#como-acontece">Entenda como funciona</a>
@@ -322,27 +333,35 @@ const hero = () => `
           </div>
         </div>
       </div>
-      <div class="hero__visual">${captureConsole()}</div>
     </div>
-    <div class="shell">
+    <div class="shell hero__foot">
       <ul class="pillars">
-        <li><strong>Seu trabalho de sempre</strong><span>Atividades que sua equipe já executa</span></li>
-        <li><strong>Captação profissional</strong><span>Equipamento dedicado e protocolo definido</span></li>
-        <li><strong>Coordenação local</strong><span>A OperumData acompanha cada etapa</span></li>
+        <li><strong>Receita complementar</strong><span>Participação remunerada, conforme critérios do programa</span></li>
+        <li><strong>Seu trabalho de sempre</strong><span>Captado com equipamento dedicado, sem mudar a atividade</span></li>
+        <li><strong>Qualificação prévia</strong><span>A OperumData avalia o perfil e coordena cada etapa</span></li>
       </ul>
+      <p class="hero__caption">Cena ilustrativa: captura com câmera de capacete e estruturação dos registros.</p>
     </div>
   </section>`;
 
 const oportunidade = () => `
   <section class="section" id="oportunidade" aria-labelledby="oportunidade-title">
     <div class="shell split">
-      ${heading({
-        kicker: "A oportunidade",
-        id: "oportunidade-title",
-        title: "Trabalho real virou matéria-prima da tecnologia.",
-        lead: "Sistemas de IA e robótica aprendem com profissionais em ação. Atividades que sua equipe já realiza podem ser registradas, com autorização, e gerar receita adicional para a empresa.",
-      })}
+      <div>
+        ${heading({
+          kicker: "A oportunidade",
+          id: "oportunidade-title",
+          title: "Uma nova fonte de receita complementar para sua empresa.",
+          lead: "Sistemas de IA e robótica aprendem com profissionais em ação. Empresas elegíveis podem ser remuneradas pela captação autorizada de atividades que já realizam: renda adicional a partir do trabalho de sempre.",
+        })}
+        <ul class="value reveal">
+          <li><strong>Participação remunerada</strong><span>Conforme os critérios e as condições de cada programa.</span></li>
+          <li><strong>Sem mudar o negócio</strong><span>A receita vem de atividades que sua equipe já executa.</span></li>
+          <li><strong>Perfil avaliado antes</strong><span>A qualificação mostra se sua empresa é compatível.</span></li>
+        </ul>
+      </div>
       <div class="sectors reveal">
+        <p class="sectors__title">Ambientes com potencial</p>
         <ul class="sectors__grid">
           ${setores.map(([g, t]) => `<li>${glyphs[g]}<span>${t}</span></li>`).join("")}
         </ul>
@@ -486,7 +505,7 @@ const formulario = () => {
       <div class="form-intro reveal">
         <p class="kicker">Próximo passo</p>
         <h2 id="cadastro-title">Vamos conversar sobre a sua empresa.</h2>
-        <p>Conte o básico. Se houver perfil, a OperumData entra em contato para uma conversa de qualificação.</p>
+        <p>Conte o básico. Se houver perfil para participação remunerada, a OperumData entra em contato para uma conversa de qualificação.</p>
         <ul class="form-facts">
           <li>Sem compromisso</li>
           <li>Sem CPF, documentos ou dados bancários</li>
@@ -591,8 +610,8 @@ const faq = () => `
 const ctaFinal = () => `
   <section class="cta-final" aria-labelledby="cta-title">
     <div class="shell cta-final__inner reveal">
-      <h2 id="cta-title">Sua empresa pode fazer parte de novas oportunidades.</h2>
-      <p>Uma conversa de qualificação, sem pressão e sem promessas.</p>
+      <h2 id="cta-title">Sua empresa pode gerar receita complementar com o trabalho que já faz.</h2>
+      <p>Converse com a OperumData e descubra se sua empresa se qualifica para participação remunerada. Sem pressão e sem compromisso.</p>
       <a class="btn btn--primary btn--lg" href="#cadastro">Quero conhecer a oportunidade <span class="btn__arrow" aria-hidden="true">→</span></a>
     </div>
   </section>`;
@@ -620,9 +639,9 @@ const footer = (prefix = "") => `
 // Documento
 // ---------------------------------------------------------------------------
 
-const TITLE = "OperumData | Parceiros Brasil — nova fonte de receita com o trabalho que sua empresa já realiza";
+const TITLE = "OperumData | Parceiros Brasil — receita complementar com o trabalho que sua empresa já realiza";
 const DESCRIPTION =
-  "A OperumData conecta empresas brasileiras a programas internacionais de coleta de dados de atividades profissionais reais. Veja se sua empresa tem o perfil.";
+  "Receita complementar a partir do trabalho que sua empresa já realiza. A OperumData aproxima empresas brasileiras de programas internacionais de coleta de dados com participação remunerada, conforme os critérios de cada programa.";
 
 const doc = ({ base, title, description, canonical, body }) => `<!doctype html>
 <html lang="pt-BR">

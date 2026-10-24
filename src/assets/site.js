@@ -59,6 +59,30 @@
     }, 1000);
   }
 
+  // Parallax discreto da cena do hero (ponteiro). Desligado com movimento reduzido.
+  var scene = d.querySelector("[data-parallax]");
+  if (scene && !reduceMotion && window.matchMedia("(pointer: fine)").matches) {
+    var layers = scene.querySelectorAll("[data-depth]");
+    var hero = scene.closest(".hero");
+    var raf = 0;
+    hero.addEventListener("pointermove", function (ev) {
+      var r = hero.getBoundingClientRect();
+      var x = (ev.clientX - r.left) / r.width - 0.5;
+      var y = (ev.clientY - r.top) / r.height - 0.5;
+      if (raf) return;
+      raf = window.requestAnimationFrame(function () {
+        raf = 0;
+        layers.forEach(function (l) {
+          var k = Number(l.getAttribute("data-depth")) * 14;
+          l.style.transform = "translate(" + (-x * k).toFixed(1) + "px," + (-y * k).toFixed(1) + "px)";
+        });
+      });
+    });
+    hero.addEventListener("pointerleave", function () {
+      layers.forEach(function (l) { l.style.transform = ""; });
+    });
+  }
+
   // Menu móvel
   d.querySelectorAll(".mobile-nav a").forEach(function (a) {
     a.addEventListener("click", function () { var m = a.closest("details"); if (m) m.open = false; });
