@@ -616,6 +616,23 @@ const ctaFinal = () => `
     </div>
   </section>`;
 
+// Botão flutuante de WhatsApp. Com número configurado, abre a conversa com a
+// mensagem pronta. Sem número, fica visível mas desativado, com aviso: nunca
+// aponta para um número inventado.
+const waIcon = `<svg class="wa-float__icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M16 3.5A12.4 12.4 0 0 0 5.3 22.3L3.6 28.4l6.3-1.6A12.4 12.4 0 1 0 16 3.5Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M11.6 9.8c-.4 0-1 .1-1.4.7-.5.6-1.4 1.6-1.4 3.4s1.4 3.6 1.6 3.8c.2.3 2.8 4.4 6.9 6 3.4 1.3 4.1 1.1 4.8 1 .8-.1 2.4-1 2.7-1.9.3-.9.3-1.7.2-1.9-.1-.2-.4-.3-.8-.5l-2.7-1.3c-.4-.2-.6-.2-.9.2l-1.2 1.5c-.2.3-.4.3-.8.1-.4-.2-1.6-.6-3.1-1.9-1.1-1-1.9-2.3-2.1-2.7-.2-.4 0-.6.2-.8l.6-.7c.2-.2.3-.4.4-.7.1-.3.1-.5 0-.7l-1.2-2.9c-.3-.8-.7-.7-.9-.7h-.9Z" fill="currentColor"/></svg>`;
+
+const whatsappFloat = () => {
+  const wa = operumdata.contato.whatsapp;
+  if (wa) {
+    const href = `https://wa.me/${esc(wa)}?text=${encodeURIComponent(operumdata.contato.whatsappMensagem || "")}`;
+    return `<a class="wa-float" href="${href}" target="_blank" rel="noopener" aria-label="Conversar com a OperumData pelo WhatsApp">${waIcon}<span class="wa-float__label">Fale pelo WhatsApp</span></a>`;
+  }
+  return `<div class="wa-float-wrap">
+    <button class="wa-float is-off" type="button" aria-disabled="true" aria-describedby="wa-off" data-wa-off>${waIcon}<span class="wa-float__label">WhatsApp</span></button>
+    <p class="wa-float__note" id="wa-off" role="status" hidden>WhatsApp comercial ainda não configurado nesta demonstração.</p>
+  </div>`;
+};
+
 const footer = (prefix = "") => `
   <footer class="site-footer">
     <div class="shell site-footer__inner">
@@ -692,7 +709,8 @@ ${formulario()}
 ${faq()}
 ${ctaFinal()}
 </main>
-${footer()}`,
+${footer()}
+${whatsappFloat()}`,
   });
 }
 

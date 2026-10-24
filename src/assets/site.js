@@ -83,6 +83,16 @@
     });
   }
 
+  // WhatsApp ainda não configurado: o botão só explica, não abre nada.
+  var waOff = d.querySelector("[data-wa-off]");
+  if (waOff) {
+    var waNote = d.getElementById("wa-off");
+    waOff.addEventListener("click", function () {
+      waNote.hidden = !waNote.hidden;
+      if (!waNote.hidden) window.setTimeout(function () { waNote.hidden = true; }, 5000);
+    });
+  }
+
   // Menu móvel
   d.querySelectorAll(".mobile-nav a").forEach(function (a) {
     a.addEventListener("click", function () { var m = a.closest("details"); if (m) m.open = false; });

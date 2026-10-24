@@ -7,6 +7,7 @@ import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parceiroInternacional } from "../src/config/parceiro-internacional.mjs";
 import { site } from "../src/config/site.mjs";
+import { operumdata as operumdataCfg } from "../src/config/operumdata.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
@@ -95,6 +96,9 @@ if (!site.formulario.endpoint) {
   if (!button || !/\sdisabled/.test(button[0])) fail("Sem endpoint configurado, o botão de envio deve estar desabilitado");
   if (!index.includes("Envio desativado nesta versão")) fail("Sem endpoint configurado, o aviso de envio desativado deve aparecer");
 }
+// WhatsApp: sem número configurado, nenhum link wa.me pode ser publicado.
+if (!operumdataCfg.contato.whatsapp && index.includes("wa.me/")) fail("Link de WhatsApp publicado sem número configurado");
+if (!index.includes("wa-float")) fail("Botão flutuante de WhatsApp ausente");
 for (const banned of ['name="cpf"', 'name="banco"', 'name="agencia"']) if (index.includes(banned)) fail(`Campo proibido no formulário: ${banned}`);
 
 // 4. Nomes confidenciais e segredos (repositório + saída)

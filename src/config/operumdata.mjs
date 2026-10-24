@@ -26,6 +26,8 @@ export const operumdata = {
   contato: {
     // Somente dígitos com DDI e DDD, ex.: "5511999999999"
     whatsapp: null,
+    // Mensagem que já aparece escrita ao abrir o WhatsApp pelo botão flutuante.
+    whatsappMensagem: "Olá! Vim pela página Parceiros OperumData e quero conhecer a oportunidade para minha empresa.",
     email: null,
   },
 };
