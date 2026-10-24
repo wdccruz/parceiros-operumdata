@@ -46,6 +46,19 @@
     anims.forEach(function (el) { el.classList.add("is-playing"); });
   }
 
+  // Timecode do console de captura (ilustrativo)
+  var tc = d.querySelector("[data-timecode]");
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (tc && !reduceMotion) {
+    var secs = 14 * 60 + 32;
+    var pad = function (n) { return (n < 10 ? "0" : "") + n; };
+    window.setInterval(function () {
+      if (d.hidden) return;
+      secs += 1;
+      tc.textContent = pad(Math.floor(secs / 3600)) + ":" + pad(Math.floor(secs / 60) % 60) + ":" + pad(secs % 60);
+    }, 1000);
+  }
+
   // Menu móvel
   d.querySelectorAll(".mobile-nav a").forEach(function (a) {
     a.addEventListener("click", function () { var m = a.closest("details"); if (m) m.open = false; });

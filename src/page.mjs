@@ -1,6 +1,10 @@
 // Renderiza as páginas estáticas a partir dos arquivos de configuração.
 // Todo o texto é português. Links internos e assets usam caminhos RELATIVOS,
 // para funcionar tanto em /parceiros-operumdata/ quanto em um subdomínio próprio.
+//
+// Direção editorial: peça comercial, curta e direta. Ressalvas concentradas
+// na seção de confiança, no FAQ e no formulário. Visuais de captação sempre
+// com equipamento dedicado (capacete, peito, suporte), nunca celular.
 
 import { operumdata } from "./config/operumdata.mjs";
 import { parceiroInternacional as parceiro } from "./config/parceiro-internacional.mjs";
@@ -27,45 +31,153 @@ const operumMark = (cls = "") => `
     <circle class="operum-mark__dot" cx="16" cy="16" r="2.4" />
   </svg>`;
 
-// Identidade do parceiro: logotipo oficial quando configurado; senão, monograma
-// provisório tracejado, que nunca imita uma marca real.
+// Logotipo oficial quando configurado; senão, monograma provisório tracejado.
 const partnerMark = (cls = "") =>
   parceiro.logotipo
     ? `<img class="partner-mark partner-mark--logo ${cls}" src="${esc(parceiro.logotipo)}" alt="" width="40" height="40" />`
     : `<span class="partner-mark ${cls}" aria-hidden="true"><span>${esc(parceiro.sigla)}</span></span>`;
 
-const provisionalTag = () =>
+const provisionalTag = (texto = "Nome ilustrativo") =>
   parceiro.provisorio
-    ? `<span class="tag tag--provisional" title="Nome e identidade ilustrativos, usados apenas nesta demonstração">Identidade provisória · demonstração</span>`
+    ? `<span class="tag tag--provisional" title="Nome e identidade ilustrativos, usados apenas nesta demonstração">${texto}</span>`
     : "";
 
-const wordmark = () => `
-  <a class="wordmark" href="./" aria-label="OperumData — início">
-    ${operumMark()}
-    <span class="wordmark__text"><strong>OperumData</strong><small>Parceiros Brasil</small></span>
-  </a>`;
+const wordmarkInner = () =>
+  `${operumMark()}<span class="wordmark__text"><strong>OperumData</strong><small>Parceiros Brasil</small></span>`;
 
 // ---------------------------------------------------------------------------
-// Ícones de linha (SVG simples, sem dependências)
+// Ícones de linha
 // ---------------------------------------------------------------------------
 
 const icon = (paths) =>
   `<svg class="glyph" viewBox="0 0 48 48" aria-hidden="true" focusable="false">${paths}</svg>`;
 
 const glyphs = {
-  construcao: icon('<path d="M6 40h36"/><path d="M10 40V22l14-10 14 10v18"/><path class="hot" d="M19 40V28h10v12"/><path d="M24 12V6"/>'),
+  construcao: icon('<path d="M6 40h36"/><path d="M10 40V22l14-10 14 10v18"/><path class="hot" d="M19 40V28h10v12"/>'),
   oficina: icon('<circle cx="24" cy="24" r="7"/><path d="M24 6v6M24 36v6M6 24h6M36 24h6M11.3 11.3l4.2 4.2M32.5 32.5l4.2 4.2M11.3 36.7l4.2-4.2M32.5 15.5l4.2-4.2"/><circle class="hot" cx="24" cy="24" r="2.5"/>'),
   marcenaria: icon('<path d="M6 34h36v6H6z"/><path d="M12 34V22h24v12"/><path class="hot" d="M18 22l6-12 6 12"/>'),
   energia: icon('<path class="hot" d="M26 6L12 27h11l-3 15 16-22H25z"/>'),
   cozinha: icon('<path d="M8 22h32v6a12 12 0 0 1-12 12h-8A12 12 0 0 1 8 28z"/><path class="hot" d="M17 8c-2 3 2 5 0 8M24 6c-2 3 2 5 0 8M31 8c-2 3 2 5 0 8"/>'),
   outros: icon('<rect x="8" y="8" width="13" height="13"/><rect x="27" y="8" width="13" height="13"/><rect x="8" y="27" width="13" height="13"/><path class="hot" d="M33.5 28v11M28 33.5h11"/>'),
-  consentimento: icon('<circle cx="24" cy="15" r="7"/><path d="M10 41c1-8 7-13 14-13s13 5 14 13"/><path class="hot" d="M30 34l4 4 8-9"/>'),
   autorizacao: icon('<rect x="10" y="6" width="28" height="36"/><path d="M16 15h16M16 21h16M16 27h9"/><path class="hot" d="M27 35l3 3 6-7"/>'),
-  seguranca: icon('<path d="M10 28a14 14 0 0 1 28 0"/><path d="M6 28h36v5H6z"/><path class="hot" d="M24 14v-4M20 15l2 6M28 15l-2 6"/>'),
-  finalidade: icon('<circle cx="24" cy="24" r="16"/><circle cx="24" cy="24" r="9"/><circle class="hot" cx="24" cy="24" r="2.5"/>'),
+  consentimento: icon('<circle cx="24" cy="15" r="7"/><path d="M10 41c1-8 7-13 14-13s13 5 14 13"/><path class="hot" d="M30 34l4 4 8-9"/>'),
+  seguranca: icon('<path d="M10 28a14 14 0 0 1 28 0"/><path d="M6 28h36v5H6z"/><path class="hot" d="M24 14v-4"/>'),
   contrato: icon('<path d="M12 6h18l8 8v28H12z"/><path d="M30 6v8h8"/><path class="hot" d="M18 26h14M18 32h10"/>'),
-  interesse: icon('<path d="M8 10h32v22H22l-8 7v-7H8z"/><path class="hot" d="M17 21h14"/>'),
 };
+
+// ---------------------------------------------------------------------------
+// Visual principal: console de captura (representação ilustrativa)
+// Vista do ponto de vista de uma câmera de capacete sobre uma bancada,
+// com marcação de mãos, ferramenta e peça (estruturação dos dados).
+// ---------------------------------------------------------------------------
+
+// Pontos de referência de uma mão (21 pontos, padrão de visão computacional).
+const HAND = [
+  [0, 0],
+  [-16, -10], [-28, -22], [-36, -34], [-42, -44],
+  [-10, -40], [-12, -58], [-13, -70], [-14, -80],
+  [0, -42], [0, -62], [0, -75], [0, -86],
+  [10, -40], [12, -57], [13, -69], [14, -78],
+  [18, -34], [22, -47], [24, -57], [26, -65],
+];
+const HAND_LINKS = [
+  [0, 1], [1, 2], [2, 3], [3, 4],
+  [0, 5], [5, 6], [6, 7], [7, 8],
+  [9, 10], [10, 11], [11, 12],
+  [13, 14], [14, 15], [15, 16],
+  [0, 17], [17, 18], [18, 19], [19, 20],
+  [5, 9], [9, 13], [13, 17],
+];
+
+function handSkeleton(cx, cy, deg, scale, mirror, cls) {
+  const r = (deg * Math.PI) / 180;
+  const pts = HAND.map(([x, y]) => {
+    const mx = (mirror ? -x : x) * scale;
+    const my = y * scale;
+    return [cx + mx * Math.cos(r) - my * Math.sin(r), cy + mx * Math.sin(r) + my * Math.cos(r)].map((v) => Math.round(v * 10) / 10);
+  });
+  const lines = HAND_LINKS.map(([a, b]) => `M${pts[a][0]} ${pts[a][1]}L${pts[b][0]} ${pts[b][1]}`).join("");
+  const dots = pts.map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="${i === 0 ? 3.4 : 2.4}"/>`).join("");
+  return `<g class="kp ${cls}"><path d="${lines}"/>${dots}</g>`;
+}
+
+const captureConsole = () => `
+  <figure class="console" aria-labelledby="console-cap" data-anim>
+    <div class="console__bar" aria-hidden="true">
+      <span><i class="console__rec"></i>Cam 01 · Capacete</span>
+      <span class="console__tc" data-timecode>00:14:32</span>
+    </div>
+    <div class="console__view">
+      <svg class="console__scene" viewBox="0 0 560 380" role="img" aria-label="Vista de uma câmera de capacete sobre uma bancada de trabalho, com mãos, ferramenta e peça identificadas.">
+        <defs>
+          <linearGradient id="cs-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17140f"/><stop offset="1" stop-color="#0b0a08"/></linearGradient>
+          <linearGradient id="cs-wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3a2a1a"/><stop offset="0.5" stop-color="#4a3522"/><stop offset="1" stop-color="#36271a"/></linearGradient>
+          <linearGradient id="cs-metal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8d949e"/><stop offset="1" stop-color="#4a4f57"/></linearGradient>
+          <radialGradient id="cs-vig" cx="0.5" cy="0.5" r="0.75"><stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.75"/></radialGradient>
+        </defs>
+        <rect width="560" height="380" fill="url(#cs-bg)"/>
+        <g opacity="0.9">
+          <rect x="40" y="150" width="480" height="150" fill="url(#cs-wood)" transform="rotate(-4 280 225)"/>
+          <path d="M44 190C180 184 330 178 516 166M46 222C190 214 330 208 518 196M48 258C200 250 340 242 520 232" stroke="#5a4229" stroke-width="2" fill="none" opacity="0.6" transform="rotate(-4 280 225)"/>
+          <rect x="230" y="190" width="120" height="44" rx="3" fill="url(#cs-metal)" transform="rotate(-4 290 212)"/>
+          <circle cx="262" cy="211" r="6" fill="#2a2d33"/><circle cx="318" cy="207" r="6" fill="#2a2d33"/>
+          <rect x="372" y="118" width="26" height="120" rx="8" fill="#20232a" transform="rotate(32 385 178)"/>
+          <rect x="378" y="96" width="14" height="40" rx="3" fill="#9aa1ab" transform="rotate(32 385 178)"/>
+        </g>
+        <rect width="560" height="380" fill="url(#cs-vig)"/>
+
+        <g class="bbox bbox--part"><rect x="222" y="176" width="140" height="66"/><text x="222" y="170">PEÇA</text></g>
+        <g class="bbox bbox--tool"><rect x="350" y="96" width="92" height="150"/><text x="350" y="90">FERRAMENTA</text></g>
+        <g class="bbox bbox--hand"><rect x="150" y="178" width="100" height="116"/><text x="150" y="312">MÃO ESQUERDA</text></g>
+        <g class="bbox bbox--hand"><rect x="318" y="150" width="110" height="122"/><text x="318" y="290">MÃO DIREITA</text></g>
+
+        ${handSkeleton(198, 290, 28, 1.05, true, "kp--left")}
+        ${handSkeleton(372, 262, -14, 1.05, false, "kp--right")}
+
+        <g class="reticle" aria-hidden="true"><path d="M16 36V16h20M524 16h20v20M544 344v20h-20M36 364H16v-20"/></g>
+      </svg>
+      <ul class="console__tags" aria-hidden="true">
+        <li>Ação: montagem</li>
+        <li>Etapa 3 de 5</li>
+      </ul>
+    </div>
+    <div class="console__timeline" aria-hidden="true">
+      <div class="console__segments"><span>Preparo</span><span>Corte</span><span class="is-on">Montagem</span><span>Acabamento</span></div>
+      <i class="console__head"></i>
+    </div>
+    <figcaption id="console-cap">Representação ilustrativa de captura com câmera de capacete e estruturação dos registros.</figcaption>
+  </figure>`;
+
+// Câmera de captura dedicada (render de produto, ilustrativo).
+const cameraRender = () => `
+  <svg class="cam-render" viewBox="0 0 320 260" role="img" aria-label="Câmera compacta de captura com suporte para capacete">
+    <defs>
+      <linearGradient id="cr-body" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3e46"/><stop offset="0.45" stop-color="#1c1f24"/><stop offset="1" stop-color="#0d0e11"/></linearGradient>
+      <linearGradient id="cr-edge" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5a606b"/><stop offset="1" stop-color="#2a2e35"/></linearGradient>
+      <radialGradient id="cr-glass" cx="0.38" cy="0.35" r="0.7"><stop offset="0" stop-color="#3b4a63"/><stop offset="0.45" stop-color="#121722"/><stop offset="1" stop-color="#05060a"/></radialGradient>
+      <linearGradient id="cr-mount" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b2f36"/><stop offset="1" stop-color="#121418"/></linearGradient>
+    </defs>
+    <ellipse cx="160" cy="236" rx="120" ry="10" fill="#000" opacity="0.55"/>
+    <path d="M128 176h64l10 44h-84z" fill="url(#cr-mount)" stroke="#3a3f49"/>
+    <rect x="112" y="214" width="96" height="12" rx="3" fill="#1a1d22" stroke="#3a3f49"/>
+    <circle cx="160" cy="194" r="7" fill="#0b0c0e" stroke="#5a606b"/>
+    <rect x="60" y="56" width="200" height="128" rx="18" fill="url(#cr-edge)"/>
+    <rect x="64" y="60" width="192" height="120" rx="15" fill="url(#cr-body)"/>
+    <path d="M78 66h164" stroke="#ffffff" stroke-opacity="0.12" stroke-width="2" stroke-linecap="round"/>
+    <rect x="76" y="78" width="46" height="18" rx="3" fill="#0a0b0d" stroke="#2f333b"/>
+    <circle class="cam-render__led" cx="88" cy="87" r="4"/>
+    <rect x="98" y="84" width="16" height="6" rx="1" fill="#2a2e35"/>
+    <rect x="216" y="44" width="30" height="14" rx="3" fill="#2a2e35" stroke="#3a3f49"/>
+    <circle cx="190" cy="120" r="50" fill="#0a0b0e" stroke="#3a3f49" stroke-width="2"/>
+    <circle cx="190" cy="120" r="40" fill="#15181d" stroke="#ff5a1f" stroke-width="2"/>
+    <circle cx="190" cy="120" r="30" fill="url(#cr-glass)"/>
+    <circle cx="190" cy="120" r="12" fill="#04050a"/>
+    <ellipse cx="178" cy="108" rx="9" ry="6" fill="#ffffff" opacity="0.18"/>
+    <circle cx="198" cy="128" r="3" fill="#ffffff" opacity="0.08"/>
+    <path d="M76 112v52M84 112v52M92 112v52M100 112v52" stroke="#2c3037" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="190" cy="120" r="45" fill="none" stroke="#5a606b" stroke-width="1" stroke-dasharray="1 5"/>
+    <circle cx="246" cy="168" r="2.5" fill="#3a3f49"/><circle cx="74" cy="168" r="2.5" fill="#3a3f49"/>
+  </svg>`;
 
 // ---------------------------------------------------------------------------
 // Conteúdo
@@ -73,90 +185,77 @@ const glyphs = {
 
 const nav = [
   ["oportunidade", "Oportunidade"],
-  ["captacao", "Na prática"],
-  ["como-funciona", "Como funciona"],
-  ["quem-conduz", "Quem conduz"],
-  ["transparencia", "Transparência"],
+  ["como-acontece", "Como acontece"],
+  ["quem-conduz", "Quem está por trás"],
+  ["confianca", "Confiança"],
   ["perguntas", "Perguntas"],
 ];
 
-const etapas = [
-  {
-    fase: "Interesse",
-    titulo: "Contato e apresentação da oportunidade",
-    texto: "Você envia seu interesse ou recebe nosso contato. Explicamos o programa, o que ele busca e o que se espera de uma empresa participante.",
-  },
-  {
-    fase: "Interesse",
-    titulo: "Qualificação preliminar",
-    texto: "Conversamos sobre sua empresa, suas atividades, o ambiente de trabalho e a equipe, para entender se há compatibilidade com os requisitos do programa.",
-  },
-  {
-    fase: "Aprovação e contratação",
-    titulo: "Requisitos, autorizações e condições comerciais",
-    texto: "Se houver perfil, avaliamos em conjunto os requisitos técnicos, as autorizações necessárias e as condições comerciais. Nada é assinado sem que tudo esteja claro.",
-  },
-  {
-    fase: "Preparação",
-    titulo: "Preparação para eventual participação",
-    texto: "Com a contratação formalizada, planejamos acesso, adequação do ambiente, disponibilidade dos profissionais, segurança e logística.",
-  },
-  {
-    fase: "Início efetivo",
-    titulo: "Execução das atividades autorizadas",
-    texto: "A captação acontece somente nas atividades autorizadas, conforme o programa contratado, com acompanhamento da coordenação local.",
-  },
-];
-
-const marcos = [
-  ["Interesse inicial", "Você quer conhecer a oportunidade. Não gera obrigação para nenhuma das partes."],
-  ["Aprovação", "A empresa e as atividades atendem aos requisitos do programa."],
-  ["Contratação", "As condições são aceitas e formalizadas por escrito."],
-  ["Início da coleta", "Só depois da contratação e das autorizações necessárias."],
-];
-
 const setores = [
-  ["construcao", "Construção e manutenção técnica", "Obras, reformas, manutenção predial e serviços técnicos em campo."],
-  ["oficina", "Oficinas e reparos", "Mecânica, funilaria, assistência técnica e reparo de equipamentos."],
-  ["marcenaria", "Marcenaria e fabricação", "Marcenarias, serralherias, montagem e pequenas linhas de produção."],
-  ["energia", "Energia e instalações", "Instalações elétricas, solares, hidráulicas e de climatização."],
-  ["cozinha", "Cozinhas e operações profissionais", "Cozinhas industriais, restaurantes, padarias e preparo de alimentos."],
-  ["outros", "Outros ambientes compatíveis", "Outras atividades manuais e técnicas, conforme as necessidades específicas de cada programa."],
+  ["construcao", "Construção e manutenção"],
+  ["oficina", "Oficinas e reparos"],
+  ["marcenaria", "Marcenaria e fabricação"],
+  ["energia", "Energia e instalações"],
+  ["cozinha", "Cozinhas profissionais"],
+  ["outros", "Outros ambientes"],
 ];
 
-const transparencia = [
-  ["consentimento", "Consentimento dos profissionais", "Cada profissional que aparecer em uma gravação precisa concordar de forma apropriada, informada e registrada. Ninguém participa sem saber."],
-  ["autorizacao", "Autorização para gravar no local", "A gravação no estabelecimento depende das autorizações cabíveis do responsável pelo local e, quando for o caso, de terceiros."],
-  ["seguranca", "Segurança e EPIs", "A operação deve respeitar as normas de segurança da atividade e o uso dos EPIs exigidos. A captação não pode criar risco adicional."],
-  ["finalidade", "Finalidade dos dados informada antes", "Para que os dados serão usados e como serão tratados precisa ser informado antes de qualquer participação."],
-  ["contrato", "Condições claras antes do compromisso", "Informações contratuais e critérios de remuneração precisam ser esclarecidos antes de qualquer compromisso."],
-  ["interesse", "Interesse não é contratação", "Enviar seu interesse não significa aprovação, contratação nem início de qualquer coleta."],
+const fluxo = [
+  ["Atividade real", "Sua equipe trabalha normalmente, no ambiente de sempre."],
+  ["Captura dedicada", "Câmeras de capacete, peito ou suporte fixo. Não é celular."],
+  ["Estruturação", "Os registros são organizados e rotulados conforme o protocolo."],
+  ["Aplicação", "Os dados apoiam o desenvolvimento de sistemas de IA e robótica."],
+];
+
+const etapas = [
+  ["Contato", "Apresentação da oportunidade"],
+  ["Qualificação", "Perfil da empresa e das atividades"],
+  ["Condições", "Requisitos, autorizações e proposta"],
+  ["Preparação", "Ambiente, equipe e logística"],
+  ["Início", "Captação das atividades autorizadas"],
+];
+
+const confianca = [
+  ["autorizacao", "Autorização da empresa", "Nada é registrado sem a autorização do responsável pelo local."],
+  ["consentimento", "Consentimento da equipe", "Cada profissional decide se participa, depois de entender a finalidade."],
+  ["seguranca", "Segurança e EPIs", "A rotina segura e os EPIs exigidos vêm antes de qualquer captação."],
+  ["contrato", "Tudo por escrito antes", "Finalidade dos dados, condições e remuneração apresentadas antes do compromisso."],
 ];
 
 const perguntas = [
   [
     "Minha empresa precisa mudar a atividade que realiza?",
-    "Não. A proposta envolve atividades que sua empresa já executa. Dependendo dos requisitos do programa, podem ser necessários ajustes pontuais, como organização do espaço, horários combinados ou uso de equipamento de captação. Qualquer ajuste é apresentado e combinado antes de você assumir compromisso.",
+    "Não. A proposta envolve atividades que sua empresa já executa. Podem ser necessários ajustes pontuais, como organização do espaço ou horários combinados, sempre apresentados antes de qualquer compromisso.",
   ],
   [
     "Como funciona a remuneração?",
-    "Os critérios de remuneração são definidos nas condições de cada programa e apresentados antes de qualquer compromisso. Não há valor fixo divulgado, remuneração automática ou garantia de ganhos: tudo depende da aprovação, da contratação e das atividades efetivamente realizadas.",
+    "Os critérios são definidos nas condições de cada programa e apresentados por escrito antes do compromisso. Não há valor fixo divulgado nem remuneração automática.",
+  ],
+  [
+    "Existe garantia de aprovação ou de ganhos?",
+    "Não. A participação depende da compatibilidade do ambiente, dos profissionais e dos requisitos do programa. Por isso a primeira etapa é uma conversa de qualificação.",
   ],
   [
     "Quem autoriza as gravações?",
-    "O responsável pelo estabelecimento autoriza a gravação no local, dentro das condições contratadas. Quando a atividade envolve terceiros, como clientes ou espaços de outras empresas, outras autorizações podem ser necessárias.",
+    "O responsável pelo estabelecimento, dentro das condições contratadas. Quando houver terceiros envolvidos, outras autorizações podem ser necessárias.",
   ],
   [
     "Os profissionais precisam concordar?",
-    "Sim. A participação de cada profissional exige consentimento apropriado, depois de entender a finalidade e as condições. Um profissional que não concordar não participa da captação.",
+    "Sim. Cada profissional precisa dar consentimento apropriado, depois de entender a finalidade e as condições. Quem não concordar não participa.",
   ],
   [
     "A empresa precisa comprar equipamentos?",
-    "O que for necessário para a captação é definido pelos requisitos de cada programa e apresentado na fase de avaliação, antes de qualquer compromisso. Nesta etapa, nenhuma compra é necessária.",
+    "Não nesta etapa. O equipamento de captura e o protocolo são definidos pelos requisitos de cada programa e apresentados na fase de avaliação.",
   ],
   [
     "O que acontece depois que manifesto interesse?",
-    "A OperumData analisa as informações enviadas e, se houver possível compatibilidade, entra em contato para uma conversa de qualificação. Manifestar interesse não gera obrigação, aprovação ou contratação.",
+    "A OperumData analisa as informações e, se houver possível compatibilidade, entra em contato para uma conversa de qualificação. Manifestar interesse não gera obrigação, aprovação nem contratação.",
+  ],
+  [
+    `${esc(parceiro.nome)} é a empresa responsável pelo programa?`,
+    parceiro.provisorio
+      ? `Nesta versão de demonstração, “${esc(parceiro.nome)}” é um nome ilustrativo que representa a organização internacional responsável pelo programa. Não é uma empresa confirmada e não indica contrato firmado. O nome oficial será informado com autorização e dados verificáveis.`
+      : `Sim. ${esc(parceiro.nome)} é a organização internacional responsável pelo programa, pelos requisitos técnicos e pelas condições contratuais.`,
   ],
 ];
 
@@ -166,39 +265,34 @@ const UFS = "AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO R
 // Blocos
 // ---------------------------------------------------------------------------
 
-const sectionHeading = ({ index, label, title, lead = [] }) => `
-  <header class="section-heading reveal">
-    <div class="section-heading__meta"><span class="section-heading__index">${index}</span><span>${label}</span></div>
-    <div>
-      <h2>${title}</h2>
-      ${lead.map((p) => `<p>${p}</p>`).join("")}
-    </div>
+const heading = ({ kicker, title, id, lead }) => `
+  <header class="heading reveal">
+    <p class="kicker">${kicker}</p>
+    <h2 id="${id}">${title}</h2>
+    ${lead ? `<p class="heading__lead">${lead}</p>` : ""}
   </header>`;
 
 const demoBanner = () =>
   site.demonstracao || parceiro.provisorio
-    ? `<div class="demo-banner" role="note">
-        <div class="shell demo-banner__inner">
-          <span class="demo-banner__label">Versão de demonstração</span>
-          <span>${parceiro.provisorio ? `“${esc(parceiro.nome)}” é um nome ilustrativo, não uma empresa confirmada. ` : ""}O cadastro ainda não envia dados.</span>
-        </div>
-      </div>`
+    ? `<div class="demo-banner" role="note"><div class="shell demo-banner__inner"><span class="demo-banner__label">Demonstração</span><span>${
+        parceiro.provisorio ? `“${esc(parceiro.nome)}” é um nome ilustrativo. ` : ""
+      }O cadastro ainda não envia dados.</span></div></div>`
     : "";
 
 const header = () => `
   <header class="site-header">
     <div class="shell site-header__inner">
-      ${wordmark()}
+      <a class="wordmark" href="./" aria-label="OperumData — início">${wordmarkInner()}</a>
       <nav class="desktop-nav" aria-label="Seções da página">
         ${nav.map(([id, label]) => `<a href="#${id}">${label}</a>`).join("")}
       </nav>
       <div class="site-header__actions">
-        <a class="btn btn--primary btn--sm header-cta" href="#cadastro">Cadastrar interesse</a>
+        <a class="btn btn--primary btn--sm header-cta" href="#cadastro">Quero conversar</a>
         <details class="mobile-nav">
           <summary aria-label="Abrir menu"><span class="mobile-nav__bars" aria-hidden="true"><i></i><i></i></span>Menu</summary>
           <nav aria-label="Menu">
             ${nav.map(([id, label]) => `<a href="#${id}">${label}</a>`).join("")}
-            <a class="mobile-nav__cta" href="#cadastro">Cadastrar interesse</a>
+            <a class="mobile-nav__cta" href="#cadastro">Quero conversar</a>
           </nav>
         </details>
       </div>
@@ -207,272 +301,100 @@ const header = () => `
 
 const hero = () => `
   <section class="hero" aria-labelledby="hero-title">
-    <div class="hero__grid-bg" aria-hidden="true"></div>
+    <div class="hero__glow" aria-hidden="true"></div>
     <div class="shell hero__inner">
       <div class="hero__content">
-        <p class="eyebrow"><span class="signal-dot" aria-hidden="true"></span>Programa internacional · Empresas brasileiras</p>
+        <p class="kicker"><span class="signal-dot" aria-hidden="true"></span>Programa internacional de coleta de dados</p>
         <h1 id="hero-title">O trabalho que sua empresa já realiza pode gerar <em>uma nova fonte de receita.</em></h1>
-        <ul class="hero__orgs-inline" aria-label="Organizações">
-          <li>${operumMark("hero__orgs-mark")}<span><strong>OperumData</strong>Coordenação e relacionamento no Brasil</span></li>
-          <li class="${parceiro.provisorio ? "is-provisional" : ""}">${partnerMark("hero__orgs-mark")}<span><strong>${esc(parceiro.nome)}${parceiro.provisorio ? " <em>(nome ilustrativo)</em>" : ""}</strong>${esc(parceiro.descricaoCurta)}</span></li>
-        </ul>
-        <p class="hero__lead">A OperumData aproxima empresas brasileiras de oportunidades de participação em programas internacionais de coleta de dados de atividades profissionais reais.</p>
-        <p class="hero__lead hero__lead--soft">Conheça as condições de participação e descubra se sua empresa possui o perfil necessário.</p>
+        <p class="hero__lead">A OperumData conecta empresas brasileiras a programas internacionais de coleta de dados de atividades profissionais reais.</p>
         <div class="hero__actions">
           <a class="btn btn--primary btn--lg" href="#cadastro">Quero conhecer a oportunidade <span class="btn__arrow" aria-hidden="true">→</span></a>
-          <a class="btn btn--ghost btn--lg" href="#como-funciona">Entenda como funciona</a>
+          <a class="btn btn--ghost btn--lg" href="#como-acontece">Entenda como funciona</a>
         </div>
-        <ul class="hero__principles" aria-label="Princípios">
-          <li>Atividades reais do seu negócio</li>
-          <li>Somente com autorização</li>
-          <li>Interesse sem compromisso</li>
-        </ul>
+        <div class="duo" aria-label="Organizações envolvidas">
+          <div class="duo__item duo__item--operum">
+            ${operumMark("duo__mark")}
+            <div><strong>OperumData</strong><span>Coordenação e relacionamento no Brasil</span></div>
+          </div>
+          <div class="duo__item duo__item--partner${parceiro.provisorio ? " is-provisional" : ""}">
+            ${partnerMark("duo__mark")}
+            <div><strong>${esc(parceiro.nome)} ${provisionalTag()}</strong><span>${esc(parceiro.descricaoCurta)}</span></div>
+          </div>
+        </div>
       </div>
-
-      <aside class="orgs" aria-label="Quem conduz o programa" data-anim>
-        <p class="orgs__title">Quem conduz o programa</p>
-
-        <div class="orgs__node orgs__node--company">
-          <span class="orgs__icon" aria-hidden="true">${glyphs.construcao}</span>
-          <div><strong>Sua empresa</strong><span>Atividades profissionais reais</span></div>
-        </div>
-
-        <div class="orgs__link" aria-hidden="true"><i></i></div>
-
-        <div class="org org--operum">
-          ${operumMark("org__mark")}
-          <div class="org__body">
-            <strong class="org__name">OperumData</strong>
-            <span class="org__role">Coordenação e relacionamento no Brasil</span>
-          </div>
-        </div>
-
-        <div class="orgs__link" aria-hidden="true"><i></i></div>
-
-        <div class="org org--partner${parceiro.provisorio ? " is-provisional" : ""}">
-          ${partnerMark("org__mark")}
-          <div class="org__body">
-            <strong class="org__name">${esc(parceiro.nome)}</strong>
-            <span class="org__role">${esc(parceiro.descricaoCurta)}</span>
-            ${provisionalTag()}
-          </div>
-        </div>
-
-        <p class="orgs__caption">Modelo conceitual de responsabilidades. Não representa contrato firmado.</p>
-      </aside>
+      <div class="hero__visual">${captureConsole()}</div>
+    </div>
+    <div class="shell">
+      <ul class="pillars">
+        <li><strong>Seu trabalho de sempre</strong><span>Atividades que sua equipe já executa</span></li>
+        <li><strong>Captação profissional</strong><span>Equipamento dedicado e protocolo definido</span></li>
+        <li><strong>Coordenação local</strong><span>A OperumData acompanha cada etapa</span></li>
+      </ul>
     </div>
   </section>`;
 
 const oportunidade = () => `
   <section class="section" id="oportunidade" aria-labelledby="oportunidade-title">
-    <div class="shell">
-      ${sectionHeading({
-        index: "A",
-        label: "A oportunidade",
-        title: `<span id="oportunidade-title">Sua operação pode ter valor além dos serviços que já presta.</span>`,
-        lead: [
-          "Sistemas de inteligência artificial e robótica precisam aprender com trabalho de verdade: mãos, ferramentas, materiais e ambientes reais. Por isso, determinadas atividades profissionais podem ser registradas, mediante autorização, para projetos de desenvolvimento desses sistemas.",
-        ],
+    <div class="shell split">
+      ${heading({
+        kicker: "A oportunidade",
+        id: "oportunidade-title",
+        title: "Trabalho real virou matéria-prima da tecnologia.",
+        lead: "Sistemas de IA e robótica aprendem com profissionais em ação. Atividades que sua equipe já realiza podem ser registradas, com autorização, e gerar receita adicional para a empresa.",
       })}
-      <div class="cards cards--3">
-        <article class="card reveal" style="--i:0">
-          <span class="card__code">01</span>
-          <h3>Atividades que já existem</h3>
-          <p>A proposta envolve o trabalho que seu estabelecimento já executa no dia a dia. Não se trata de criar um serviço novo.</p>
-        </article>
-        <article class="card reveal" style="--i:1">
-          <span class="card__code">02</span>
-          <h3>Sempre mediante autorização</h3>
-          <p>Nada é registrado sem a autorização da empresa e o consentimento dos profissionais envolvidos.</p>
-        </article>
-        <article class="card reveal" style="--i:2">
-          <span class="card__code">03</span>
-          <h3>Depende de compatibilidade</h3>
-          <p>A participação depende do ambiente, dos profissionais e dos requisitos de cada programa. Nem toda empresa ou atividade será elegível.</p>
-        </article>
+      <div class="sectors reveal">
+        <ul class="sectors__grid">
+          ${setores.map(([g, t]) => `<li>${glyphs[g]}<span>${t}</span></li>`).join("")}
+        </ul>
+        <p class="sectors__note">Setores de exemplo. Outros ambientes podem ser avaliados.</p>
       </div>
-      <p class="note reveal"><strong>Sem promessas automáticas.</strong> Não há remuneração automática nem garantia de aprovação. A captação também pode exigir ajustes pontuais na rotina, que são apresentados e combinados antes de qualquer compromisso.</p>
     </div>
   </section>`;
 
-// Ilustração conceitual da captação: profissional em atividade real com
-// equipamento DEDICADO (capacete, peito, suporte fixo). Nunca celular.
-const captureScene = () => `
-  <svg class="cap-scene" viewBox="0 0 640 440" role="img" aria-labelledby="cap-scene-title cap-scene-desc">
-    <title id="cap-scene-title">Ilustração: profissional trabalhando em uma bancada com câmeras dedicadas</title>
-    <desc id="cap-scene-desc">Um profissional com capacete, luvas e colete trabalha em uma bancada. Uma câmera presa ao capacete e outra presa ao peito registram as mãos e a ferramenta. Uma câmera compacta em suporte fixo registra o posto de trabalho.</desc>
-    <defs>
-      <pattern id="cap-grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="rgba(201,209,219,0.05)" stroke-width="1"/></pattern>
-    </defs>
-    <rect width="640" height="440" fill="url(#cap-grid)"/>
-
-    <!-- campos de visão das câmeras -->
-    <g class="cap-fov">
-      <polygon class="cap-fov__cone" style="--d:0s" points="292,99 382,240 500,240"/>
-      <polygon class="cap-fov__cone" style="--d:1.2s" points="284,213 372,262 488,268"/>
-      <polygon class="cap-fov__cone" style="--d:2.4s" points="574,181 404,236 512,280"/>
-    </g>
-
-    <!-- área registrada -->
-    <g class="cap-frame">
-      <path d="M372 226v-10h14M512 216h14v10M526 282v10h-14M386 292h-14v-10"/>
-      <text x="372" y="206">ÁREA DE TRABALHO</text>
-    </g>
-    <rect class="cap-scan" x="374" y="218" width="2" height="72"/>
-
-    <!-- piso e bancada -->
-    <path class="cap-line" d="M24 400H616"/>
-    <path class="cap-line" d="M340 294V400M566 294V400M340 360H566"/>
-    <rect class="cap-solid" x="326" y="280" width="256" height="14"/>
-    <!-- peça na bancada -->
-    <rect class="cap-solid" x="404" y="250" width="92" height="30"/>
-    <path class="cap-line" d="M420 250v30M480 250v30"/>
-    <circle class="cap-line" cx="450" cy="265" r="6"/>
-
-    <!-- profissional -->
-    <g class="cap-worker">
-      <path class="cap-limb" d="M242 272L238 336L236 394"/>
-      <path class="cap-limb" d="M266 272L282 336L292 394"/>
-      <path class="cap-boot" d="M226 394h22v8h-22zM284 394h24v8h-24z"/>
-      <path class="cap-limb cap-limb--back" d="M238 178L246 238L330 258"/>
-      <path class="cap-body" d="M232 164H278L284 274H226Z"/>
-      <path class="cap-stripe" d="M229 236H281"/>
-      <path class="cap-stripe" d="M231 252H282"/>
-      <!-- arnês peitoral -->
-      <path class="cap-harness" d="M238 166L258 206M274 166L262 206"/>
-      <path class="cap-neck" d="M254 150v14"/>
-      <circle class="cap-head" cx="256" cy="128" r="22"/>
-      <path class="cap-helmet" d="M230 124a27 27 0 0 1 54 0Z"/>
-      <path class="cap-line" d="M226 124H292"/>
-      <path class="cap-limb" d="M272 176L302 228L346 260"/>
-      <circle class="cap-glove" cx="348" cy="261" r="7"/>
-      <circle class="cap-glove" cx="332" cy="258" r="7"/>
-      <!-- ferramenta -->
-      <path class="cap-tool" d="M352 259L404 254"/>
-      <circle class="cap-tool" cx="410" cy="254" r="7"/>
-    </g>
-
-    <!-- 01 câmera no capacete -->
-    <g class="cap-cam">
-      <rect x="262" y="90" width="24" height="14" rx="2"/>
-      <path d="M270 104v6"/>
-      <circle class="cap-cam__lens" cx="290" cy="97" r="5"/>
-    </g>
-    <!-- 02 câmera no peito -->
-    <g class="cap-cam">
-      <rect x="252" y="204" width="24" height="18" rx="2"/>
-      <circle class="cap-cam__lens" cx="281" cy="213" r="5"/>
-    </g>
-    <!-- 03 câmera compacta em suporte fixo -->
-    <g class="cap-cam">
-      <path class="cap-line" d="M598 196V400M584 400L598 372L612 400"/>
-      <rect x="578" y="172" width="32" height="20" rx="2"/>
-      <circle class="cap-cam__lens" cx="574" cy="182" r="6"/>
-    </g>
-
-    <!-- marcadores -->
-    <g class="cap-pin"><circle cx="300" cy="66" r="12"/><text x="300" y="70">01</text><path d="M296 78L290 90"/></g>
-    <g class="cap-pin"><circle cx="196" cy="214" r="12"/><text x="196" y="218">02</text><path d="M208 214H250"/></g>
-    <g class="cap-pin"><circle cx="596" cy="140" r="12"/><text x="596" y="144">03</text><path d="M596 152V170"/></g>
-  </svg>`;
-
-const equipamentos = [
-  ["01", "Câmera presa ao capacete", "Registra o ponto de vista do profissional: mãos, ferramentas e materiais."],
-  ["02", "Câmera corporal no peito", "Acompanha os movimentos de perto, sem ocupar as mãos de quem trabalha."],
-  ["03", "Câmera compacta em suporte fixo", "Mostra o posto de trabalho por inteiro, em posição definida pelo protocolo."],
-];
-
-const captacao = () => `
-  <section class="section section--capture" id="captacao" aria-labelledby="captacao-title">
+const comoAcontece = () => `
+  <section class="section section--alt" id="como-acontece" aria-labelledby="como-title">
     <div class="shell">
-      ${sectionHeading({
-        index: "B",
-        label: "Como é a captação",
-        title: `<span id="captacao-title">Captação estruturada, com equipamento dedicado.</span>`,
-        lead: [
-          "O profissional faz o trabalho de sempre, no ambiente de sempre. O registro é feito com câmeras de captura dedicadas, presas ao capacete, ao corpo ou a um suporte, seguindo um protocolo definido. Não é filmagem com celular nem gravação improvisada.",
-        ],
+      ${heading({
+        kicker: "Como acontece",
+        id: "como-title",
+        title: "Captação profissional, no seu ambiente.",
       })}
       <div class="capture">
-        <figure class="capture__figure reveal" data-anim>
-          <div class="capture__hud" aria-hidden="true"><span><i></i>Captura dedicada</span><span>Protocolo do programa</span></div>
-          ${captureScene()}
-          <figcaption>Ilustração conceitual. Equipamentos, posições e protocolo são definidos pelos requisitos de cada programa.</figcaption>
-        </figure>
-        <div class="capture__side">
-          <ol class="capture__gear">
-            ${equipamentos
-              .map(
-                ([n, t, d], i) => `
-              <li class="reveal" style="--i:${i}">
-                <span class="capture__num" aria-hidden="true">${n}</span>
-                <div><h3>${t}</h3><p>${d}</p></div>
-              </li>`,
-              )
-              .join("")}
-          </ol>
-          <ul class="capture__facts reveal">
-            <li><span><strong>Trabalho real.</strong> Sem encenação: a atividade segue o ritmo normal da empresa.</span></li>
-            <li><span><strong>Protocolo definido.</strong> O que é registrado, por quanto tempo e com qual equipamento é estabelecido pelo programa.</span></li>
+        <div class="capture__device reveal">
+          ${cameraRender()}
+          <p class="capture__device-label">Equipamento de captura dedicado</p>
+          <ul class="capture__mounts">
+            <li>Capacete</li><li>Peito</li><li>Suporte fixo</li>
           </ul>
         </div>
+        <ol class="flow" data-anim>
+          ${fluxo
+            .map(
+              ([t, d], i) => `
+            <li class="flow__step reveal" style="--i:${i}">
+              <span class="flow__num" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span>
+              <div><h3>${t}</h3><p>${d}</p></div>
+            </li>`,
+            )
+            .join("")}
+        </ol>
       </div>
-      <p class="note reveal"><strong>Somente com autorização.</strong> A captação só acontece depois da autorização da empresa, do consentimento dos profissionais envolvidos e da confirmação de que o ambiente atende aos requisitos do programa.</p>
-    </div>
-  </section>`;
-
-const comoFunciona = () => `
-  <section class="section section--alt" id="como-funciona" aria-labelledby="como-title">
-    <div class="shell">
-      ${sectionHeading({
-        index: "C",
-        label: "Como funciona",
-        title: `<span id="como-title">Cinco etapas, cada uma com sua decisão.</span>`,
-        lead: ["Você avança apenas quando a etapa anterior estiver clara. Manifestar interesse é só o começo da conversa."],
-      })}
-      <ol class="steps" data-anim>
-        ${etapas
-          .map(
-            (e, i) => `
-          <li class="step reveal" style="--i:${i}">
-            <div class="step__num" aria-hidden="true">${String(i + 1).padStart(2, "0")}</div>
-            <div class="step__body">
-              <span class="step__phase">${e.fase}</span>
-              <h3><span class="sr-only">Etapa ${i + 1}: </span>${e.titulo}</h3>
-              <p>${e.texto}</p>
-            </div>
-          </li>`,
-          )
-          .join("")}
-      </ol>
-      <div class="milestones reveal">
-        <p class="milestones__title">Quatro momentos diferentes</p>
-        <dl class="milestones__list">
-          ${marcos.map(([t, d]) => `<div class="milestone"><dt>${t}</dt><dd>${d}</dd></div>`).join("")}
-        </dl>
+      <div class="journey reveal">
+        <p class="journey__title">Do primeiro contato ao início</p>
+        <ol class="journey__steps">
+          ${etapas.map(([t, d], i) => `<li style="--i:${i}"><strong>${t}</strong><span>${d}</span></li>`).join("")}
+        </ol>
       </div>
     </div>
   </section>`;
 
-const respRows = [
-  ["Relacionamento com empresas brasileiras e apresentação da oportunidade", "operum"],
-  ["Qualificação preliminar e coordenação operacional local", "operum"],
-  ["Acesso, adequação dos ambientes, disponibilidade e logística", "operum"],
-  ["Finalidade técnica dos dados e requisitos de captação", "partner"],
-  ["Condições contratuais e critérios de remuneração", "partner"],
-  ["Autorização no local, consentimento da equipe e segurança da rotina", "company"],
-];
-
-const quemConduz = () => {
-  const who = { operum: "OperumData", partner: esc(parceiro.nome), company: "Sua empresa" };
-  return `
+const quemConduz = () => `
   <section class="section" id="quem-conduz" aria-labelledby="quem-title">
     <div class="shell">
-      ${sectionHeading({
-        index: "D",
-        label: "Quem está por trás do programa",
-        title: `<span id="quem-title">Uma coordenação no Brasil. Um programa internacional.</span>`,
-        lead: ["Cada organização tem um papel definido. Você sabe com quem fala, quem define as regras e quem acompanha a operação."],
+      ${heading({
+        kicker: "Quem está por trás",
+        id: "quem-title",
+        title: "Coordenação no Brasil. Programa internacional.",
       })}
       <div class="org-panels">
         <article class="org-panel org-panel--operum reveal">
@@ -480,137 +402,70 @@ const quemConduz = () => {
             ${operumMark("org-panel__mark")}
             <div><span class="org-panel__kicker">Presença local</span><h3>OperumData</h3></div>
           </header>
-          <p>Responsável pelo relacionamento com empresas brasileiras, pela apresentação da oportunidade, pela qualificação preliminar e pela preparação e coordenação operacional local.</p>
-          <p>Nossa atuação considera acesso aos estabelecimentos, adequação dos ambientes, disponibilidade dos profissionais, autorizações e logística, conforme as exigências de cada programa.</p>
-          <p class="org-panel__fact"><span>Base de experiência</span>Experiência operacional por meio do fundador, que atua na coordenação de serviços técnicos e trabalhos de campo desde ${operumdata.experienciaDesde}.</p>
+          <ul class="org-panel__list">
+            <li>Relacionamento com empresas brasileiras</li>
+            <li>Qualificação e preparação de cada participação</li>
+            <li>Coordenação de campo: acesso, equipe, autorizações e logística</li>
+          </ul>
+          <p class="org-panel__fact">Fundador atua na coordenação de serviços técnicos e trabalhos de campo desde ${operumdata.experienciaDesde}.</p>
         </article>
         <article class="org-panel org-panel--partner${parceiro.provisorio ? " is-provisional" : ""} reveal" data-parceiro>
           <header class="org-panel__head">
             ${partnerMark("org-panel__mark")}
             <div><span class="org-panel__kicker">Programa internacional</span><h3>${esc(parceiro.nome)}</h3></div>
+            ${provisionalTag()}
           </header>
-          ${parceiro.apresentacao.map((p) => `<p>${esc(p)}</p>`).join("")}
+          <ul class="org-panel__list">
+            ${parceiro.responsabilidades.map((r) => `<li>${esc(r)}</li>`).join("")}
+          </ul>
           ${
             parceiro.provisorio
-              ? `<p class="org-panel__notice"><strong>Identidade ilustrativa.</strong> “${esc(parceiro.nome)}” representa, nesta demonstração, a organização responsável pelo programa. Não é uma empresa confirmada e não indica vínculo contratual formalizado. Nome e informações oficiais só serão publicados com autorização e dados verificáveis.</p>`
+              ? `<p class="org-panel__notice">Identidade ilustrativa desta demonstração. Não indica empresa confirmada nem contrato firmado.</p>`
               : ""
           }
         </article>
       </div>
-      <div class="resp reveal">
-        <p class="resp__title">Como as responsabilidades se distribuem</p>
-        <table class="resp__table">
-          <caption class="sr-only">Distribuição de responsabilidades entre sua empresa, OperumData e ${esc(parceiro.nome)}</caption>
-          <thead><tr><th scope="col">Responsabilidade</th><th scope="col">Quem responde</th></tr></thead>
-          <tbody>
-            ${respRows.map(([t, k]) => `<tr><th scope="row">${t}</th><td><span class="who who--${k}">${who[k]}</span></td></tr>`).join("")}
-          </tbody>
-        </table>
-        <p class="resp__note">Referência geral. A divisão definitiva é estabelecida nas condições de cada programa.</p>
-      </div>
-    </div>
-  </section>`;
-};
-
-const atividades = () => `
-  <section class="section section--alt" id="atividades" aria-labelledby="atividades-title">
-    <div class="shell">
-      ${sectionHeading({
-        index: "E",
-        label: "Empresas e atividades",
-        title: `<span id="atividades-title">Ambientes profissionais reais, de vários setores.</span>`,
-        lead: ["Programas de coleta buscam atividades manuais e técnicas executadas por profissionais em seu ambiente de trabalho."],
-      })}
-      <ul class="sectors">
-        ${setores
-          .map(
-            ([g, t, d], i) => `
-          <li class="sector reveal" style="--i:${i}">
-            ${glyphs[g]}
-            <h3>${t}</h3>
-            <p>${d}</p>
-            <span class="sector__bar" aria-hidden="true"></span>
-          </li>`,
-          )
-          .join("")}
-      </ul>
-      <p class="note reveal">Os setores acima são <strong>exemplos</strong>, não uma lista permanente de elegibilidade. Cada programa define as atividades que procura, e essas necessidades mudam com o tempo.</p>
     </div>
   </section>`;
 
-const transparenciaSec = () => `
-  <section class="section" id="transparencia" aria-labelledby="transp-title">
-    <div class="shell">
-      ${sectionHeading({
-        index: "F",
-        label: "Segurança, autorização e transparência",
-        title: `<span id="transp-title">Regras claras antes de qualquer gravação.</span>`,
-        lead: ["Estes são os princípios que orientam a participação. Os procedimentos detalhados de cada programa são apresentados por escrito antes do compromisso."],
-      })}
-      <ul class="principles">
-        ${transparencia
-          .map(
-            ([g, t, d], i) => `
-          <li class="principle reveal" style="--i:${i}">
-            ${glyphs[g]}
-            <div><h3>${t}</h3><p>${d}</p></div>
-          </li>`,
-          )
-          .join("")}
-      </ul>
-    </div>
-  </section>`;
+const field = (label, value) => `
+  <div class="cred__row"><dt>${label}</dt><dd>${value ? esc(value) : `<span class="pending">${PENDENTE}</span>`}</dd></div>`;
 
-const field = (label, value, hint) => `
-  <div class="cred__row${value ? "" : " is-pending"}">
-    <dt>${label}</dt>
-    <dd>${value ? esc(value) : `<span class="pending">${PENDENTE}</span>${hint ? `<small>${hint}</small>` : ""}`}</dd>
-  </div>`;
-
-const credibilidade = () => {
+const confiancaSec = () => {
   const inst = operumdata.institucional;
-  const canal = operumdata.contato.whatsapp
-    ? `WhatsApp +${operumdata.contato.whatsapp}`
-    : operumdata.contato.email || null;
+  const canal = operumdata.contato.whatsapp ? `WhatsApp +${operumdata.contato.whatsapp}` : operumdata.contato.email || null;
   const v = parceiro.verificacao;
-  const partnerVerified = !parceiro.provisorio && v.razaoSocial;
   return `
-  <section class="section section--alt" id="credibilidade" aria-labelledby="cred-title">
+  <section class="section section--alt" id="confianca" aria-labelledby="confianca-title">
     <div class="shell">
-      ${sectionHeading({
-        index: "G",
-        label: "Credibilidade institucional",
-        title: `<span id="cred-title">Saiba exatamente com quem está falando.</span>`,
-        lead: [
-          "Antes de qualquer compromisso, você deve poder verificar quem é responsável pelo atendimento e pelo programa. Os dados abaixo são publicados somente quando reais e conferidos.",
-        ],
+      ${heading({
+        kicker: "Confiança",
+        id: "confianca-title",
+        title: "Regras claras antes de qualquer compromisso.",
       })}
-      <div class="cred">
-        <section class="cred__card reveal" aria-labelledby="cred-op">
-          <header class="cred__head">${operumMark("cred__mark")}<h3 id="cred-op">OperumData</h3></header>
+      <div class="trust">
+        <ul class="trust__grid">
+          ${confianca
+            .map(
+              ([g, t, d], i) => `
+            <li class="reveal" style="--i:${i}">${glyphs[g]}<h3>${t}</h3><p>${d}</p></li>`,
+            )
+            .join("")}
+        </ul>
+        <section class="cred reveal" id="credibilidade" aria-labelledby="cred-title">
+          <header class="cred__head">${operumMark("cred__mark")}<h3 id="cred-title">Dados institucionais</h3></header>
           <dl>
-            ${field("Razão social", inst.razaoSocial, "Entidade efetivamente responsável")}
+            ${field("Razão social", inst.razaoSocial)}
             ${field("CNPJ", inst.cnpj)}
-            ${field("Responsável pelo atendimento", inst.responsavelAtendimento)}
-            ${field("Região de atuação no Brasil", inst.regiaoAtuacao)}
-            ${field("Canal oficial de comunicação", canal)}
-            <div class="cred__row${site.privacidade.publicada ? "" : " is-pending"}">
-              <dt>Política de privacidade</dt>
-              <dd>${site.privacidade.publicada ? `<a href="privacidade/">Ler a política</a>` : `<span class="pending">${PENDENTE}</span><small><a href="privacidade/">Veja o que ela vai conter</a></small>`}</dd>
-            </div>
+            ${field("Atendimento", inst.responsavelAtendimento)}
+            ${field("Região de atuação", inst.regiaoAtuacao)}
+            ${field("Canal oficial", canal)}
+            <div class="cred__row"><dt>Privacidade</dt><dd><a href="privacidade/">${site.privacidade.publicada ? "Política de privacidade" : "Política em preparação"}</a></dd></div>
+            ${field(`Programa internacional`, !parceiro.provisorio && v.razaoSocial ? v.razaoSocial : null)}
           </dl>
-        </section>
-        <section class="cred__card cred__card--partner reveal" aria-labelledby="cred-pt">
-          <header class="cred__head">${partnerMark("cred__mark")}<h3 id="cred-pt">${esc(parceiro.nome)}</h3>${provisionalTag()}</header>
-          <dl>
-            ${field("Identificação verificável", partnerVerified ? v.razaoSocial : null, "Publicada somente com autorização do parceiro")}
-            ${field("País de sede", parceiro.provisorio ? null : v.paisSede)}
-            ${field("Site oficial", parceiro.provisorio ? null : v.siteOficial)}
-            ${field("Registro", parceiro.provisorio ? null : v.registro)}
-          </dl>
+          <p class="cred__note">Campos pendentes são publicados somente com dados reais e conferidos.</p>
         </section>
       </div>
-      <p class="note reveal"><strong>Por que há campos pendentes?</strong> Preferimos mostrar um campo vazio a publicar uma informação que ainda não foi confirmada. Peça estes dados na conversa de qualificação e confira antes de assinar qualquer documento.</p>
     </div>
   </section>`;
 };
@@ -626,16 +481,16 @@ const formulario = () => {
         } ${email ? `<a class="btn-link" href="mailto:${esc(email)}">${esc(email)}</a>` : ""}</p>`
       : "";
   return `
-  <section class="section" id="cadastro" aria-labelledby="cadastro-title">
+  <section class="section section--form" id="cadastro" aria-labelledby="cadastro-title">
     <div class="shell form-layout">
       <div class="form-intro reveal">
-        <div class="section-heading__meta"><span class="section-heading__index">H</span><span>Cadastro de interesse</span></div>
-        <h2 id="cadastro-title">Conte um pouco sobre sua empresa.</h2>
-        <p>Com essas informações, a OperumData avalia se há possível compatibilidade e, se houver, entra em contato para uma conversa de qualificação.</p>
+        <p class="kicker">Próximo passo</p>
+        <h2 id="cadastro-title">Vamos conversar sobre a sua empresa.</h2>
+        <p>Conte o básico. Se houver perfil, a OperumData entra em contato para uma conversa de qualificação.</p>
         <ul class="form-facts">
-          <li>Enviar interesse não significa aprovação ou contratação.</li>
-          <li>Nesta etapa não pedimos CPF, documentos de funcionários ou dados bancários.</li>
-          <li>Leva cerca de dois minutos.</li>
+          <li>Sem compromisso</li>
+          <li>Sem CPF, documentos ou dados bancários</li>
+          <li>Cerca de dois minutos</li>
         </ul>
         ${alt}
       </div>
@@ -646,10 +501,7 @@ const formulario = () => {
         ${
           enabled
             ? ""
-            : `<div class="form-status form-status--off" id="form-status" role="note">
-                <strong>Envio desativado nesta versão.</strong>
-                O recebimento de cadastros ainda não foi configurado. Você pode conferir os campos, mas nenhum dado digitado aqui é enviado ou armazenado.
-              </div>`
+            : `<div class="form-status" id="form-status" role="note"><strong>Envio desativado nesta versão.</strong> O recebimento de cadastros ainda não foi configurado. Nenhum dado digitado aqui é enviado ou armazenado.</div>`
         }
         <div class="form-grid">
           <div class="fld">
@@ -658,7 +510,7 @@ const formulario = () => {
             <p class="fld__error" id="e-nome" aria-live="polite"></p>
           </div>
           <div class="fld">
-            <label for="f-empresa">Nome da empresa <span class="req" aria-hidden="true">*</span></label>
+            <label for="f-empresa">Empresa <span class="req" aria-hidden="true">*</span></label>
             <input id="f-empresa" name="empresa" type="text" autocomplete="organization" required minlength="2" maxlength="160" aria-describedby="e-empresa" />
             <p class="fld__error" id="e-empresa" aria-live="polite"></p>
           </div>
@@ -679,7 +531,7 @@ const formulario = () => {
             <label for="f-ramo">Ramo de atividade <span class="req" aria-hidden="true">*</span></label>
             <select id="f-ramo" name="ramo" required aria-describedby="e-ramo">
               <option value="">Selecione</option>
-              ${setores.map(([, t]) => `<option>${t.replace("Outros ambientes compatíveis", "Outro ramo")}</option>`).join("")}
+              ${setores.map(([, t]) => `<option>${t.replace("Outros ambientes", "Outro ramo")}</option>`).join("")}
             </select>
             <p class="fld__error" id="e-ramo" aria-live="polite"></p>
           </div>
@@ -699,18 +551,18 @@ const formulario = () => {
           </div>
           <div class="fld fld--wide">
             <label for="f-obs">Observações <span class="opt">(opcional)</span></label>
-            <textarea id="f-obs" name="observacoes" rows="4" maxlength="600" aria-describedby="h-obs"></textarea>
-            <p class="fld__hint" id="h-obs">Ex.: atividades principais, horários de operação, dúvidas. Não inclua dados pessoais de funcionários.</p>
+            <textarea id="f-obs" name="observacoes" rows="3" maxlength="600" aria-describedby="h-obs"></textarea>
+            <p class="fld__hint" id="h-obs">Atividades principais, horários, dúvidas. Não inclua dados de funcionários.</p>
           </div>
           <div class="fld fld--wide fld--check">
             <input id="f-consent" name="consentimento" type="checkbox" required aria-describedby="e-consent" />
-            <label for="f-consent">Autorizo a OperumData a entrar em contato comercial pelo WhatsApp informado para tratar desta oportunidade, e declaro que li a <a href="privacidade/">política de privacidade</a>. <span class="req" aria-hidden="true">*</span></label>
+            <label for="f-consent">Autorizo a OperumData a me contatar pelo WhatsApp informado sobre esta oportunidade e li a <a href="privacidade/">política de privacidade</a>. <span class="req" aria-hidden="true">*</span></label>
             <p class="fld__error" id="e-consent" aria-live="polite"></p>
           </div>
         </div>
         <div class="form-actions">
           <button class="btn btn--primary btn--lg" type="submit" ${enabled ? "" : `disabled aria-disabled="true"`}>${enabled ? "Enviar interesse" : "Envio indisponível nesta versão"}</button>
-          <p class="form-actions__note">Campos com <span class="req">*</span> são obrigatórios.</p>
+          <p class="form-actions__note">Enviar interesse não significa aprovação ou contratação.</p>
         </div>
         <div class="form-result" id="form-result" role="status" aria-live="polite" hidden></div>
       </form>
@@ -719,13 +571,9 @@ const formulario = () => {
 };
 
 const faq = () => `
-  <section class="section section--alt" id="perguntas" aria-labelledby="faq-title">
+  <section class="section" id="perguntas" aria-labelledby="faq-title">
     <div class="shell faq-layout">
-      ${sectionHeading({
-        index: "I",
-        label: "Perguntas frequentes",
-        title: `<span id="faq-title">Dúvidas comuns de quem tem uma empresa.</span>`,
-      })}
+      ${heading({ kicker: "Perguntas frequentes", id: "faq-title", title: "O que todo empresário pergunta." })}
       <div class="faq">
         ${perguntas
           .map(
@@ -743,13 +591,9 @@ const faq = () => `
 const ctaFinal = () => `
   <section class="cta-final" aria-labelledby="cta-title">
     <div class="shell cta-final__inner reveal">
-      <p class="eyebrow"><span class="signal-dot" aria-hidden="true"></span>Próximo passo</p>
       <h2 id="cta-title">Sua empresa pode fazer parte de novas oportunidades.</h2>
-      <p>Converse com a OperumData para entender se o seu negócio tem o perfil do programa. Uma conversa de qualificação, sem pressão comercial e sem promessa de ganhos.</p>
-      <div class="hero__actions">
-        <a class="btn btn--primary btn--lg" href="#cadastro">Quero conhecer a oportunidade <span class="btn__arrow" aria-hidden="true">→</span></a>
-        <a class="btn btn--ghost btn--lg" href="#perguntas">Ver perguntas frequentes</a>
-      </div>
+      <p>Uma conversa de qualificação, sem pressão e sem promessas.</p>
+      <a class="btn btn--primary btn--lg" href="#cadastro">Quero conhecer a oportunidade <span class="btn__arrow" aria-hidden="true">→</span></a>
     </div>
   </section>`;
 
@@ -757,7 +601,7 @@ const footer = (prefix = "") => `
   <footer class="site-footer">
     <div class="shell site-footer__inner">
       <div class="site-footer__brand">
-        <a class="wordmark" href="${prefix || "./"}" aria-label="OperumData — início">${operumMark()}<span class="wordmark__text"><strong>OperumData</strong><small>Parceiros Brasil</small></span></a>
+        <a class="wordmark" href="${prefix || "./"}" aria-label="OperumData — início">${wordmarkInner()}</a>
         <p>${esc(operumdata.papel)}.</p>
       </div>
       <nav aria-label="Rodapé">
@@ -766,7 +610,7 @@ const footer = (prefix = "") => `
       </nav>
       <div class="site-footer__legal">
         ${parceiro.provisorio ? `<p>“${esc(parceiro.nome)}” é um nome ilustrativo usado nesta demonstração. Não representa empresa confirmada nem parceria contratada.</p>` : ""}
-        <p>Diagramas e ícones são ilustrativos. Esta página não usa cookies nem recursos de terceiros.</p>
+        <p>Imagens e interfaces são representações ilustrativas. Esta página não usa cookies nem recursos de terceiros.</p>
         <p>© ${new Date().getFullYear()} OperumData.</p>
       </div>
     </div>
@@ -776,9 +620,9 @@ const footer = (prefix = "") => `
 // Documento
 // ---------------------------------------------------------------------------
 
-const TITLE = "OperumData | Parceiros Brasil — receita adicional com o trabalho que sua empresa já realiza";
+const TITLE = "OperumData | Parceiros Brasil — nova fonte de receita com o trabalho que sua empresa já realiza";
 const DESCRIPTION =
-  "A OperumData aproxima empresas brasileiras de programas internacionais de coleta de dados de atividades profissionais reais. Conheça as condições e veja se sua empresa tem o perfil.";
+  "A OperumData conecta empresas brasileiras a programas internacionais de coleta de dados de atividades profissionais reais. Veja se sua empresa tem o perfil.";
 
 const doc = ({ base, title, description, canonical, body }) => `<!doctype html>
 <html lang="pt-BR">
@@ -822,12 +666,9 @@ ${header()}
 <main id="conteudo">
 ${hero()}
 ${oportunidade()}
-${captacao()}
-${comoFunciona()}
+${comoAcontece()}
 ${quemConduz()}
-${atividades()}
-${transparenciaSec()}
-${credibilidade()}
+${confiancaSec()}
 ${formulario()}
 ${faq()}
 ${ctaFinal()}
@@ -842,20 +683,20 @@ export function renderPrivacy() {
   return doc({
     base: "../",
     title: "Política de privacidade | OperumData Parceiros Brasil",
-    description: "Situação da política de privacidade da página OperumData Parceiros Brasil.",
+    description: "Situação da política de privacidade da página OperumData Parceiros Brasil e o que ela vai informar antes da ativação do cadastro.",
     canonical: `${site.url}privacidade/`,
     body: `${demoBanner()}
 <header class="site-header">
   <div class="shell site-header__inner site-header__inner--simple">
-    <a class="wordmark" href="../" aria-label="OperumData — início">${operumMark()}<span class="wordmark__text"><strong>OperumData</strong><small>Parceiros Brasil</small></span></a>
+    <a class="wordmark" href="../" aria-label="OperumData — início">${wordmarkInner()}</a>
     <a class="btn btn--ghost btn--sm" href="../">← Voltar à página</a>
   </div>
 </header>
 <main id="conteudo" class="legal">
   <div class="shell legal__inner">
-    <p class="eyebrow"><span class="signal-dot" aria-hidden="true"></span>Privacidade</p>
+    <p class="kicker"><span class="signal-dot" aria-hidden="true"></span>Privacidade</p>
     <h1>Política de privacidade</h1>
-    <div class="form-status form-status--off" role="note">
+    <div class="form-status" role="note">
       <strong>Política em preparação.</strong> A política completa será publicada antes da ativação do cadastro de interesse.
     </div>
 
