@@ -46,43 +46,6 @@
     anims.forEach(function (el) { el.classList.add("is-playing"); });
   }
 
-  // Timecode do console de captura (ilustrativo)
-  var tc = d.querySelector("[data-timecode]");
-  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (tc && !reduceMotion) {
-    var secs = 14 * 60 + 32;
-    var pad = function (n) { return (n < 10 ? "0" : "") + n; };
-    window.setInterval(function () {
-      if (d.hidden) return;
-      secs += 1;
-      tc.textContent = pad(Math.floor(secs / 3600)) + ":" + pad(Math.floor(secs / 60) % 60) + ":" + pad(secs % 60);
-    }, 1000);
-  }
-
-  // Parallax discreto da cena do hero (ponteiro). Desligado com movimento reduzido.
-  var scene = d.querySelector("[data-parallax]");
-  if (scene && !reduceMotion && window.matchMedia("(pointer: fine)").matches) {
-    var layers = scene.querySelectorAll("[data-depth]");
-    var hero = scene.closest(".hero");
-    var raf = 0;
-    hero.addEventListener("pointermove", function (ev) {
-      var r = hero.getBoundingClientRect();
-      var x = (ev.clientX - r.left) / r.width - 0.5;
-      var y = (ev.clientY - r.top) / r.height - 0.5;
-      if (raf) return;
-      raf = window.requestAnimationFrame(function () {
-        raf = 0;
-        layers.forEach(function (l) {
-          var k = Number(l.getAttribute("data-depth")) * 14;
-          l.style.transform = "translate(" + (-x * k).toFixed(1) + "px," + (-y * k).toFixed(1) + "px)";
-        });
-      });
-    });
-    hero.addEventListener("pointerleave", function () {
-      layers.forEach(function (l) { l.style.transform = ""; });
-    });
-  }
-
   // WhatsApp ainda não configurado: o botão só explica, não abre nada.
   var waOff = d.querySelector("[data-wa-off]");
   if (waOff) {

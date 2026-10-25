@@ -66,96 +66,47 @@ const glyphs = {
 };
 
 // ---------------------------------------------------------------------------
-// Visual principal: console de captura (representação ilustrativa)
-// Vista do ponto de vista de uma câmera de capacete sobre uma bancada,
-// com marcação de mãos, ferramenta e peça (estruturação dos dados).
+// Fundo do hero: grade técnica e anel de lente em movimento lento.
+// Sem ilustração de pessoas: não simulamos mãos nem trabalho humano.
 // ---------------------------------------------------------------------------
 
-// Pontos de referência de uma mão (21 pontos, padrão de visão computacional).
-const HAND = [
-  [0, 0],
-  [-16, -10], [-28, -22], [-36, -34], [-42, -44],
-  [-10, -40], [-12, -58], [-13, -70], [-14, -80],
-  [0, -42], [0, -62], [0, -75], [0, -86],
-  [10, -40], [12, -57], [13, -69], [14, -78],
-  [18, -34], [22, -47], [24, -57], [26, -65],
-];
-const HAND_LINKS = [
-  [0, 1], [1, 2], [2, 3], [3, 4],
-  [0, 5], [5, 6], [6, 7], [7, 8],
-  [9, 10], [10, 11], [11, 12],
-  [13, 14], [14, 15], [15, 16],
-  [0, 17], [17, 18], [18, 19], [19, 20],
-  [5, 9], [9, 13], [13, 17],
-];
+const lensTicks = () =>
+  Array.from({ length: 72 }, (_, i) => {
+    const a = (i * 5 * Math.PI) / 180;
+    const r1 = i % 6 === 0 ? 268 : 278;
+    const f = (n) => Math.round(n * 10) / 10;
+    return `M${f(300 + r1 * Math.cos(a))} ${f(300 + r1 * Math.sin(a))}L${f(300 + 286 * Math.cos(a))} ${f(300 + 286 * Math.sin(a))}`;
+  }).join("");
 
-function handSkeleton(cx, cy, deg, scale, mirror, cls) {
-  const r = (deg * Math.PI) / 180;
-  const pts = HAND.map(([x, y]) => {
-    const mx = (mirror ? -x : x) * scale;
-    const my = y * scale;
-    return [cx + mx * Math.cos(r) - my * Math.sin(r), cy + mx * Math.sin(r) + my * Math.cos(r)].map((v) => Math.round(v * 10) / 10);
-  });
-  const lines = HAND_LINKS.map(([a, b]) => `M${pts[a][0]} ${pts[a][1]}L${pts[b][0]} ${pts[b][1]}`).join("");
-  const dots = pts.map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="${i === 0 ? 3.4 : 2.4}"/>`).join("");
-  return `<g class="kp ${cls}"><path d="${lines}"/>${dots}</g>`;
-}
-
-const heroScene = () => `
-  <div class="scene" aria-hidden="true" data-anim data-parallax>
-    <svg class="scene__svg" viewBox="-80 -90 1200 860" preserveAspectRatio="xMidYMid slice" focusable="false">
-      <defs>
-        <linearGradient id="sc-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#15120d"/><stop offset="1" stop-color="#07070a"/></linearGradient>
-        <linearGradient id="sc-wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#33251a"/><stop offset="0.5" stop-color="#4a3523"/><stop offset="1" stop-color="#2e2118"/></linearGradient>
-        <linearGradient id="sc-metal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9aa1ab"/><stop offset="1" stop-color="#454a52"/></linearGradient>
-        <radialGradient id="sc-light" cx="0.62" cy="0.5" r="0.55"><stop offset="0" stop-color="#ff5a1f" stop-opacity="0.16"/><stop offset="1" stop-color="#ff5a1f" stop-opacity="0"/></radialGradient>
-      </defs>
-      <rect x="-80" y="-90" width="1200" height="860" fill="url(#sc-bg)"/>
-      <rect x="-80" y="-90" width="1200" height="860" fill="url(#sc-light)"/>
-
-      <g class="scene__layer scene__layer--bench" data-depth="0.4">
-        <g transform="rotate(-6 640 420)">
-          <rect x="250" y="270" width="820" height="290" fill="url(#sc-wood)"/>
-          <path d="M250 320C480 312 760 300 1070 290M250 380C500 370 760 362 1070 352M250 450C480 440 760 430 1070 420M250 512C500 502 760 494 1070 486" stroke="#5c432b" stroke-width="2.5" fill="none" opacity="0.55"/>
-          <rect x="250" y="270" width="820" height="6" fill="#000" opacity="0.35"/>
-        </g>
-        <g transform="rotate(-6 640 420)">
-          <rect x="500" y="350" width="230" height="84" rx="5" fill="url(#sc-metal)"/>
-          <rect x="500" y="350" width="230" height="10" rx="3" fill="#fff" opacity="0.12"/>
-          <circle cx="560" cy="392" r="11" fill="#24272d"/><circle cx="670" cy="392" r="11" fill="#24272d"/>
-          <circle cx="560" cy="392" r="4" fill="#5a606b"/><circle cx="670" cy="392" r="4" fill="#5a606b"/>
-        </g>
-        <g class="bbox bbox--part"><rect x="486" y="326" width="262" height="124"/><text x="486" y="316">PEÇA</text></g>
-      </g>
-
-      <g class="scene__layer scene__layer--hands" data-depth="1">
-        <g class="act act--left">
-          <g class="bbox bbox--hand"><rect x="372" y="360" width="176" height="200"/><text x="372" y="584">MÃO ESQUERDA</text></g>
-          ${handSkeleton(452, 548, 30, 1.85, true, "kp--left")}
-        </g>
-        <g class="act act--right">
-          <g transform="rotate(32 760 300)">
-            <rect x="730" y="150" width="54" height="230" rx="16" fill="#1d2026"/>
-            <rect x="742" y="110" width="30" height="72" rx="5" fill="#a3aab4"/>
-            <rect x="730" y="290" width="54" height="10" fill="#ff5a1f" opacity="0.75"/>
-          </g>
-          <g class="bbox bbox--tool"><rect x="690" y="96" width="190" height="300"/><text x="690" y="86">FERRAMENTA</text></g>
-          <g class="bbox bbox--hand"><rect x="640" y="290" width="200" height="210"/><text x="640" y="524">MÃO DIREITA</text></g>
-          ${handSkeleton(724, 486, -16, 1.9, false, "kp--right")}
-        </g>
-      </g>
-
-      <rect class="scene__scan" x="380" y="80" width="2" height="540"/>
-      <g class="scene__reticle"><path d="M360 70V40h40M920 40h40v30M960 630v30h-40M400 660h-40v-30"/></g>
-      <circle class="scene__pulse" cx="760" cy="300" r="20"/>
+const heroBackdrop = () => `
+  <div class="backdrop" aria-hidden="true" data-anim>
+    <div class="backdrop__grid"></div>
+    <svg class="backdrop__lens" viewBox="0 0 600 600" focusable="false">
+      <g class="lens__outer"><circle cx="300" cy="300" r="290"/><path d="${lensTicks()}"/></g>
+      <g class="lens__mid"><circle cx="300" cy="300" r="214"/><path d="M300 86v26M300 488v26M86 300h26M488 300h26"/></g>
+      <circle class="lens__inner" cx="300" cy="300" r="132"/>
+      <circle class="lens__core" cx="300" cy="300" r="5"/>
     </svg>
+    <i class="backdrop__sweep"></i>
   </div>`;
 
-const heroHud = () => `
-  <div class="hud" aria-hidden="true">
-    <div class="hud__top"><span><i class="hud__rec"></i>Cam 01 · Capacete</span><span class="hud__tc" data-timecode>00:14:32</span></div>
-    <div class="hud__timeline"><div class="hud__segments"><span>Preparo</span><span>Corte</span><span class="is-on">Montagem</span><span>Acabamento</span></div><i class="hud__head"></i></div>
-  </div>`;
+// Resumo executivo exibido ao lado do título.
+const resumo = [
+  ["Modelo", "Participação remunerada, conforme o programa"],
+  ["Atividade", "A que sua equipe já executa"],
+  ["Captação", "Câmera dedicada no capacete, no peito ou em suporte fixo"],
+  ["Compromisso", "Nenhum ao manifestar interesse"],
+  ["Próximo passo", "Conversa de qualificação"],
+];
+
+const heroBrief = () => `
+  <aside class="brief" aria-label="Resumo da oportunidade">
+    <header class="brief__head"><span class="brief__rec" aria-hidden="true"></span>Resumo para o empresário</header>
+    <dl>
+      ${resumo.map(([k, v]) => `<div class="brief__row"><dt>${k}</dt><dd>${v}</dd></div>`).join("")}
+    </dl>
+    <a class="brief__link" href="#decisao">O que avaliar antes de decidir <span aria-hidden="true">→</span></a>
+  </aside>`;
 
 // Câmera de captura dedicada (render de produto, ilustrativo).
 const cameraRender = () => `
@@ -194,6 +145,7 @@ const cameraRender = () => `
 
 const nav = [
   ["oportunidade", "Oportunidade"],
+  ["decisao", "Para decidir"],
   ["como-acontece", "Como acontece"],
   ["quem-conduz", "Quem está por trás"],
   ["confianca", "Confiança"],
@@ -310,9 +262,7 @@ const header = () => `
 
 const hero = () => `
   <section class="hero" aria-labelledby="hero-title">
-    ${heroScene()}
-    <div class="hero__shade" aria-hidden="true"></div>
-    ${heroHud()}
+    ${heroBackdrop()}
     <div class="shell hero__inner">
       <div class="hero__content">
         <p class="kicker"><span class="signal-dot" aria-hidden="true"></span>Programa internacional · Participação remunerada</p>
@@ -333,6 +283,7 @@ const hero = () => `
           </div>
         </div>
       </div>
+      ${heroBrief()}
     </div>
     <div class="shell hero__foot">
       <ul class="pillars">
@@ -340,7 +291,6 @@ const hero = () => `
         <li><strong>Seu trabalho de sempre</strong><span>Captado com equipamento dedicado, sem mudar a atividade</span></li>
         <li><strong>Qualificação prévia</strong><span>A OperumData avalia o perfil e coordena cada etapa</span></li>
       </ul>
-      <p class="hero__caption">Cena ilustrativa: captura com câmera de capacete e estruturação dos registros.</p>
     </div>
   </section>`;
 
@@ -370,8 +320,54 @@ const oportunidade = () => `
     </div>
   </section>`;
 
+const avaliacao = [
+  ["O que será gravado", "Quais atividades, em quais áreas, e o que fica de fora: clientes, documentos e áreas restritas."],
+  ["Finalidade e uso", "Para que os registros serão usados e por quem."],
+  ["Acesso e guarda", "Quem acessa as gravações e por quanto tempo ficam armazenadas."],
+  ["Impacto na rotina", "Período, horários e eventuais ajustes no espaço de trabalho."],
+  ["Remuneração", "Critérios, valores e forma de pagamento da participação."],
+  ["Saída", "Como suspender ou encerrar a participação."],
+];
+
+const papeis = [
+  ["Sua empresa", ["Autoriza o local e as atividades", "Indica os profissionais que aceitarem participar", "Mantém a rotina segura e os EPIs"]],
+  ["OperumData", ["Qualifica o perfil da empresa", "Apresenta as condições e tira dúvidas", "Coordena o campo e acompanha cada etapa"]],
+  ["Programa internacional", ["Define requisitos técnicos e equipamento", "Estabelece condições e remuneração", "Responde pelo uso dos dados, conforme contrato"]],
+];
+
+const decisao = () => `
+  <section class="section section--alt" id="decisao" aria-labelledby="decisao-title">
+    <div class="shell">
+      ${heading({
+        kicker: "Para decidir",
+        id: "decisao-title",
+        title: "Sua empresa decide com tudo por escrito.",
+        lead: "Antes de qualquer compromisso, estes pontos são apresentados formalmente para a sua avaliação.",
+      })}
+      <ol class="checklist">
+        ${avaliacao
+          .map(
+            ([t, d], i) => `
+          <li class="reveal" style="--i:${i}"><span class="checklist__num" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span><div><h3>${t}</h3><p>${d}</p></div></li>`,
+          )
+          .join("")}
+      </ol>
+      <div class="roles reveal">
+        <p class="roles__title">Quem faz o quê</p>
+        <div class="roles__grid">
+          ${papeis
+            .map(
+              ([t, itens], i) => `
+          <div class="roles__col${i === 0 ? " is-you" : ""}"><h3>${t}${i === 2 ? ` ${provisionalTag(esc(parceiro.nome) + " · ilustrativo")}` : ""}</h3><ul>${itens.map((x) => `<li>${x}</li>`).join("")}</ul></div>`,
+            )
+            .join("")}
+        </div>
+      </div>
+    </div>
+  </section>`;
+
 const comoAcontece = () => `
-  <section class="section section--alt" id="como-acontece" aria-labelledby="como-title">
+  <section class="section" id="como-acontece" aria-labelledby="como-title">
     <div class="shell">
       ${heading({
         kicker: "Como acontece",
@@ -408,7 +404,7 @@ const comoAcontece = () => `
   </section>`;
 
 const quemConduz = () => `
-  <section class="section" id="quem-conduz" aria-labelledby="quem-title">
+  <section class="section section--alt" id="quem-conduz" aria-labelledby="quem-title">
     <div class="shell">
       ${heading({
         kicker: "Quem está por trás",
@@ -455,7 +451,7 @@ const confiancaSec = () => {
   const canal = operumdata.contato.whatsapp ? `WhatsApp +${operumdata.contato.whatsapp}` : operumdata.contato.email || null;
   const v = parceiro.verificacao;
   return `
-  <section class="section section--alt" id="confianca" aria-labelledby="confianca-title">
+  <section class="section" id="confianca" aria-labelledby="confianca-title">
     <div class="shell">
       ${heading({
         kicker: "Confiança",
@@ -702,6 +698,7 @@ ${header()}
 <main id="conteudo">
 ${hero()}
 ${oportunidade()}
+${decisao()}
 ${comoAcontece()}
 ${quemConduz()}
 ${confiancaSec()}
