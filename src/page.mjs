@@ -646,7 +646,7 @@ const socialLinks = () => {
   return `<ul class="social-links" aria-label="Siga a OperumData">${items
     .map(
       ([k, [nome, path]]) =>
-        `<li><a href="${esc(operumdata.redes[k])}" target="_blank" rel="noopener noreferrer" aria-label="${nome} da OperumData"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">${path}</svg><span>${nome}</span></a></li>`,
+        `<li><a href="${esc(operumdata.redes[k])}" target="_blank" rel="noopener noreferrer" aria-label="${nome} (abre em nova aba)"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">${path}</svg><span>${nome}</span></a></li>`,
     )
     .join("")}</ul>`;
 };

@@ -34,7 +34,7 @@ export const operumdata = {
   // Perfis oficiais. URL pública completa; null = ícone escondido.
   // Ex.: "https://www.linkedin.com/company/operumdata/"
   redes: {
-    linkedin: null,
-    facebook: null,
+    linkedin: "https://www.linkedin.com/in/wagner-cruz-4205232bb/",
+    facebook: "https://www.facebook.com/operumdata/",
   },
 };
