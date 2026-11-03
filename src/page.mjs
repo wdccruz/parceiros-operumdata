@@ -635,12 +635,29 @@ const whatsappFloat = () => {
   </div>`;
 };
 
+const SOCIAL = {
+  linkedin: ["LinkedIn", '<path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.75h4v10.75H3V9.75Zm6.5 0h3.83v1.47h.06c.53-1 1.84-2.06 3.79-2.06 4.05 0 4.8 2.67 4.8 6.13v5.21h-4v-4.62c0-1.1-.02-2.52-1.54-2.52-1.54 0-1.78 1.2-1.78 2.44v4.7h-4V9.75Z"/>'],
+  facebook: ["Facebook", '<path d="M13.5 21.5v-8h2.7l.4-3.2h-3.1V8.3c0-.9.25-1.55 1.56-1.55h1.66V3.9a22 22 0 0 0-2.42-.13c-2.4 0-4.04 1.47-4.04 4.15v2.38H7.55v3.2h2.71v8h3.24Z"/>'],
+};
+
+const socialLinks = () => {
+  const items = Object.entries(SOCIAL).filter(([k]) => operumdata.redes?.[k]);
+  if (!items.length) return "";
+  return `<ul class="social-links" aria-label="Siga a OperumData">${items
+    .map(
+      ([k, [nome, path]]) =>
+        `<li><a href="${esc(operumdata.redes[k])}" target="_blank" rel="noopener noreferrer" aria-label="${nome} da OperumData"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">${path}</svg><span>${nome}</span></a></li>`,
+    )
+    .join("")}</ul>`;
+};
+
 const footer = (prefix = "") => `
   <footer class="site-footer">
     <div class="shell site-footer__inner">
       <div class="site-footer__brand">
         <a class="wordmark" href="${prefix || "./"}" aria-label="OperumData — início">${wordmarkInner()}</a>
         <p>${esc(operumdata.papel)}.</p>
+        ${socialLinks()}
       </div>
       <nav aria-label="Rodapé">
         ${nav.map(([id, label]) => `<a href="${prefix}#${id}">${label}</a>`).join("")}

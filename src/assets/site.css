@@ -475,6 +475,10 @@ button, a, summary { -webkit-tap-highlight-color: transparent; }
 .site-footer { padding-block: 48px; }
 .site-footer__inner { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px 40px; }
 .site-footer__brand p { margin-top: 10px; color: var(--text-dim); font-size: 0.92rem; }
+.social-links { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 0; padding: 0; list-style: none; }
+.social-links a { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; padding: 0 16px; border: 1px solid var(--line-strong); color: var(--text-soft); font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: color 200ms, border-color 200ms, background 200ms; }
+.social-links a:hover, .social-links a:focus-visible { border-color: var(--accent); color: var(--text); background: rgba(255, 90, 31, 0.08); }
+.social-links svg { width: 18px; height: 18px; fill: currentColor; }
 .site-footer nav { display: flex; flex-wrap: wrap; align-content: start; gap: 12px 24px; }
 .site-footer__legal { grid-column: 1 / -1; display: grid; gap: 4px; padding-top: 22px; border-top: 1px solid var(--line); color: var(--text-dim); font-size: 0.84rem; }
 

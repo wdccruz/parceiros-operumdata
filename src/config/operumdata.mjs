@@ -30,4 +30,11 @@ export const operumdata = {
     whatsappMensagem: "Olá! Vim pela página Parceiros OperumData e quero conhecer a oportunidade para minha empresa.",
     email: null,
   },
+
+  // Perfis oficiais. URL pública completa; null = ícone escondido.
+  // Ex.: "https://www.linkedin.com/company/operumdata/"
+  redes: {
+    linkedin: null,
+    facebook: null,
+  },
 };

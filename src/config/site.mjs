@@ -6,7 +6,8 @@ export const site = {
   // Endereço público usado em canonical e Open Graph.
   // Ao migrar para o subdomínio, troque para "https://parceiros.operumdata.com/"
   // e crie o arquivo src/assets/CNAME (veja o README).
-  url: "https://wdccruz.github.io/parceiros-operumdata/",
+  // O pacote da HostGator define SITE_URL (veja o README).
+  url: process.env.SITE_URL || "https://wdccruz.github.io/parceiros-operumdata/",
 
   // Versão de demonstração: mostra a faixa de aviso e pede aos buscadores
   // que não indexem a página enquanto o parceiro for ilustrativo.

@@ -61,6 +61,26 @@ GitHub Pages. Em *Settings → Pages*, a origem deve ser **GitHub Actions**.
 Todos os caminhos internos são relativos, então o mesmo build funciona em
 `/parceiros-operumdata/` e na raiz de um subdomínio.
 
+### HostGator (ou outra hospedagem Apache / cPanel)
+
+```bash
+npm run package:hostgator                                   # para https://parceiros.operumdata.com/
+SITE_URL=https://outro.dominio/ npm run package:hostgator   # outro endereço
+```
+
+Gera `hosting/parceiros-operumdata-hostgator.zip` (site + `.htaccess` com HTTPS,
+cache e compressão). Para subir:
+
+1. cPanel → **Domínios**: crie o subdomínio `parceiros` (a pasta dele aparece, ex.: `public_html/parceiros`).
+2. cPanel → **SSL/TLS Status**: ative o certificado gratuito do subdomínio.
+3. **Gerenciador de arquivos** → abra a pasta do subdomínio → **Carregar** o zip → clique com o botão direito → **Extrair** → apague o zip.
+4. Ative "Mostrar arquivos ocultos" e confira que o `.htaccess` está lá.
+
+### Redes sociais
+
+Preencha `redes.linkedin` e `redes.facebook` em `src/config/operumdata.mjs`.
+Cada link preenchido vira um botão no rodapé das duas páginas.
+
 ### Migrar para parceiros.operumdata.com
 
 1. No DNS de `operumdata.com`, crie um registro `CNAME` de `parceiros` para `wdccruz.github.io`.

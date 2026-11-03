@@ -65,7 +65,7 @@ for (const file of walk(dist).filter((f) => f.endsWith(".html"))) {
   for (const m of html.matchAll(/\s(?:href|src)="([^"]*)"/g)) {
     const url = m[1];
     if (/^(https?:|mailto:|tel:)/.test(url)) {
-      if (/^https?:/.test(url) && !url.startsWith(site.url) && !url.startsWith("https://wa.me/")) fail(`${rel}: recurso externo não esperado: ${url}`);
+      if (/^https?:/.test(url) && !url.startsWith(site.url) && !url.startsWith("https://wa.me/") && !/^https:\/\/(www\.)?(linkedin\.com|facebook\.com)\//.test(url)) fail(`${rel}: recurso externo não esperado: ${url}`);
       continue;
     }
     if (url.startsWith("/")) { fail(`${rel}: caminho absoluto impede a migração de domínio: ${url}`); continue; }
