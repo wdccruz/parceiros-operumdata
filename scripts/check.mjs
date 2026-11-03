@@ -5,7 +5,7 @@ import { execSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { parceiroInternacional } from "../src/config/parceiro-internacional.mjs";
+import { parceiros } from "../src/config/parceiros.mjs";
 import { site } from "../src/config/site.mjs";
 import { operumdata as operumdataCfg } from "../src/config/operumdata.mjs";
 
@@ -85,12 +85,20 @@ const index = readFileSync(join(dist, "index.html"), "utf8");
 for (const id of ["oportunidade", "como-acontece", "quem-conduz", "confianca", "credibilidade", "cadastro", "perguntas"]) {
   if (!index.includes(`id="${id}"`)) fail(`Seção ausente: #${id}`);
 }
-if (!index.includes(parceiroInternacional.nome)) fail("Nome do parceiro internacional não aparece na página");
-if (parceiroInternacional.provisorio) {
-  if (!index.includes("Nome ilustrativo")) fail("Parceiro provisório sem a etiqueta de nome ilustrativo");
-  if (!index.includes("nome ilustrativo")) fail("Parceiro provisório sem aviso de nome ilustrativo");
-  if (!index.includes('name="robots" content="noindex')) fail("Demonstração deve pedir noindex");
+// Parceiros: só com autorização registrada; a página padrão não cita empresa.
+const slugs = new Set();
+for (const p of parceiros) {
+  if (!/^[a-z0-9-]{1,60}$/.test(p.slug || "")) fail(`Parceiro com slug inválido: ${p.slug}`);
+  if (slugs.has(p.slug)) fail(`Slug de parceiro repetido: ${p.slug}`);
+  slugs.add(p.slug);
+  if (!p.nome) fail(`Parceiro ${p.slug} sem nome`);
+  if (!p.autorizacao) fail(`Parceiro ${p.slug} sem autorização registrada`);
+  if (p.logotipo && !existsSync(join(dist, p.logotipo))) fail(`Logotipo do parceiro ${p.slug} não encontrado: ${p.logotipo}`);
+  if (index.replace(/<script type="application\/json"[\s\S]*?<\/script>/, "").includes(p.nome)) fail(`O nome ${p.nome} aparece na página padrão; ele só deve aparecer pelo link ?p=`);
 }
+if (!index.includes("Programas internacionais")) fail("A página padrão deve falar de programas internacionais");
+if (/Exemplo\.com/i.test(index)) fail("Nome fictício ainda presente na página");
+if (site.demonstracao && !index.includes('name="robots" content="noindex')) fail("Demonstração deve pedir noindex");
 if (!site.formulario.endpoint) {
   const button = index.match(/<button[^>]*type="submit"[^>]*>/);
   if (!button || !/\sdisabled/.test(button[0])) fail("Sem endpoint configurado, o botão de envio deve estar desabilitado");

@@ -9,6 +9,32 @@
   window.__operum = true;
   var d = document;
 
+  // Parceiro por link: ?p=<slug> mostra o parceiro da lista publicada na página.
+  // Slug desconhecido ou ausente: a página continua genérica.
+  (function () {
+    var data = d.getElementById("parceiros-data");
+    var m = /[?&]p=([a-z0-9-]{1,60})(?:&|$)/.exec(window.location.search);
+    if (!data || !m) return;
+    var list;
+    try { list = JSON.parse(data.textContent); } catch (e) { return; }
+    var p = Object.prototype.hasOwnProperty.call(list, m[1]) ? list[m[1]] : null;
+    if (!p) return;
+    d.querySelectorAll("[data-p-nome]").forEach(function (el) { el.textContent = p.nome; });
+    d.querySelectorAll("[data-p-desc]").forEach(function (el) { el.textContent = p.descricao; });
+    if (p.razaoSocial) {
+      d.querySelectorAll("[data-p-razao]").forEach(function (el) { el.textContent = p.razaoSocial; });
+      d.querySelectorAll("[data-p-only]").forEach(function (el) { el.hidden = false; });
+    }
+    if (p.logotipo) {
+      d.querySelectorAll("[data-p-mark]").forEach(function (el) {
+        var img = d.createElement("img");
+        img.className = el.className + " partner-mark--logo";
+        img.src = p.logotipo; img.alt = ""; img.width = 40; img.height = 40;
+        el.replaceWith(img);
+      });
+    }
+  })();
+
   var header = d.querySelector(".site-header");
   function onScroll() {
     if (header) header.classList.toggle("is-scrolled", window.scrollY > 12);

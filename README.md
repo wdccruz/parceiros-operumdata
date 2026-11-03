@@ -14,7 +14,7 @@ paleta (`#050506`, `#F7F4EF`, `#FF5A1F`, cinzas frios), grade, botões e marca.
 
 | O quê | Arquivo |
 | --- | --- |
-| Parceiro internacional (nome, logotipo, textos, dados verificáveis) | `src/config/parceiro-internacional.mjs` |
+| Parceiros internacionais autorizados (lista; um link `?p=slug` para cada) | `src/config/parceiros.mjs` |
 | Dados institucionais da OperumData (razão social, CNPJ, responsável, região, WhatsApp, e-mail) | `src/config/operumdata.mjs` |
 | URL pública, modo demonstração, endpoint do formulário, política de privacidade | `src/config/site.mjs` |
 | Textos das seções | `src/page.mjs` |
@@ -24,8 +24,11 @@ Campos `null` aparecem na página como **Pendente**. Nunca preencha com dados fi
 
 ## Regras de conteúdo
 
-- "Exemplo.com" é um nome fictício de desenvolvimento. Enquanto `provisorio: true`,
-  a página mostra avisos de identidade ilustrativa e pede `noindex` aos buscadores.
+- A página padrão fala de "programas internacionais" e não cita nenhuma empresa.
+- Um parceiro só aparece pelo link `?p=<slug>` (ex.: `.../parceiros-operumdata/?p=nome-curto`),
+  depois de entrar na lista de `src/config/parceiros.mjs` com a autorização escrita registrada.
+  Slug desconhecido mantém a página genérica. Não há uma página por parceiro.
+- Tudo na lista fica público no código da página: só dados autorizados.
 - Sem depoimentos, números, clientes, projetos concluídos, logotipos oficiais ou promessas de ganho.
 - Não afirmar que a OperumData já realizou coleta de dados para IA.
 - Nenhum nome de organização em negociação no código, metadados ou commits.

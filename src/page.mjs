@@ -7,7 +7,7 @@
 // com equipamento dedicado (capacete, peito, suporte), nunca celular.
 
 import { operumdata } from "./config/operumdata.mjs";
-import { parceiroInternacional as parceiro } from "./config/parceiro-internacional.mjs";
+import { parceiros } from "./config/parceiros.mjs";
 import { site } from "./config/site.mjs";
 
 const esc = (value) =>
@@ -31,15 +31,31 @@ const operumMark = (cls = "") => `
     <circle class="operum-mark__dot" cx="16" cy="16" r="2.4" />
   </svg>`;
 
-// Logotipo oficial quando configurado; senão, monograma provisório tracejado.
-const partnerMark = (cls = "") =>
-  parceiro.logotipo
-    ? `<img class="partner-mark partner-mark--logo ${cls}" src="${esc(parceiro.logotipo)}" alt="" width="40" height="40" />`
-    : `<span class="partner-mark ${cls}" aria-hidden="true"><span>${esc(parceiro.sigla)}</span></span>`;
+// Marca genérica dos programas internacionais. Com ?p=<slug>, o script
+// troca nome, descrição e logotipo pelos do parceiro da lista.
+const partnerMark = (cls = "") => `
+  <span class="partner-mark ${cls}" data-p-mark aria-hidden="true">
+    <svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.5 3.8 5.5 3.8 9s-1.2 6.5-3.8 9M12 3C9.4 5.5 8.2 8.5 8.2 12s1.2 6.5 3.8 9"/></svg>
+  </span>`;
 
-const provisionalTag = (texto = "Nome ilustrativo") =>
-  parceiro.provisorio
-    ? `<span class="tag tag--provisional" title="Nome e identidade ilustrativos, usados apenas nesta demonstração">${texto}</span>`
+const PROGRAMA = "Programas internacionais";
+const PROGRAMA_DESC = "Organizações de coleta de dados para IA e robótica";
+
+const responsabilidadesPrograma = [
+  "Finalidade técnica e uso previsto dos dados",
+  "Requisitos de captação, equipamentos e qualidade",
+  "Critérios de elegibilidade das atividades",
+  "Condições contratuais e critérios de remuneração",
+];
+
+// Dados públicos dos parceiros autorizados, lidos pelo script da página.
+const partnersData = () =>
+  parceiros.length
+    ? `<script type="application/json" id="parceiros-data">${JSON.stringify(
+        Object.fromEntries(
+          parceiros.map((p) => [p.slug, { nome: p.nome, descricao: p.descricaoCurta || PROGRAMA_DESC, logotipo: p.logotipo || null, razaoSocial: p.razaoSocial || null }]),
+        ),
+      ).replace(/</g, "\\u003c")}</script>`
     : "";
 
 const wordmarkInner = () =>
@@ -213,10 +229,8 @@ const perguntas = [
     "A OperumData analisa as informações e, se houver possível compatibilidade, entra em contato para uma conversa de qualificação. Manifestar interesse não gera obrigação, aprovação nem contratação.",
   ],
   [
-    `${esc(parceiro.nome)} é a empresa responsável pelo programa?`,
-    parceiro.provisorio
-      ? `Nesta versão de demonstração, “${esc(parceiro.nome)}” é um nome ilustrativo que representa a organização internacional responsável pelo programa. Não é uma empresa confirmada e não indica contrato firmado. O nome oficial será informado com autorização e dados verificáveis.`
-      : `Sim. ${esc(parceiro.nome)} é a organização internacional responsável pelo programa, pelos requisitos técnicos e pelas condições contratuais.`,
+    "Quais organizações estão por trás dos programas?",
+    "Organizações internacionais que desenvolvem sistemas de IA e robótica. Cada programa tem requisitos e condições próprios. O nome da organização responsável é apresentado na conversa de qualificação, antes de qualquer compromisso.",
   ],
 ];
 
@@ -234,10 +248,8 @@ const heading = ({ kicker, title, id, lead }) => `
   </header>`;
 
 const demoBanner = () =>
-  site.demonstracao || parceiro.provisorio
-    ? `<div class="demo-banner" role="note"><div class="shell demo-banner__inner"><span class="demo-banner__label">Demonstração</span><span>${
-        parceiro.provisorio ? `“${esc(parceiro.nome)}” é um nome ilustrativo. ` : ""
-      }O cadastro ainda não envia dados.</span></div></div>`
+  site.demonstracao
+    ? `<div class="demo-banner" role="note"><div class="shell demo-banner__inner"><span class="demo-banner__label">Demonstração</span><span>O cadastro ainda não envia dados.</span></div></div>`
     : "";
 
 const header = () => `
@@ -277,9 +289,9 @@ const hero = () => `
             ${operumMark("duo__mark")}
             <div><strong>OperumData</strong><span>Coordenação e relacionamento no Brasil</span></div>
           </div>
-          <div class="duo__item duo__item--partner${parceiro.provisorio ? " is-provisional" : ""}">
+          <div class="duo__item duo__item--partner">
             ${partnerMark("duo__mark")}
-            <div><strong>${esc(parceiro.nome)} ${provisionalTag()}</strong><span>${esc(parceiro.descricaoCurta)}</span></div>
+            <div><strong data-p-nome>${PROGRAMA}</strong><span data-p-desc>${PROGRAMA_DESC}</span></div>
           </div>
         </div>
       </div>
@@ -358,7 +370,7 @@ const decisao = () => `
           ${papeis
             .map(
               ([t, itens], i) => `
-          <div class="roles__col${i === 0 ? " is-you" : ""}"><h3>${t}${i === 2 ? ` ${provisionalTag(esc(parceiro.nome) + " · ilustrativo")}` : ""}</h3><ul>${itens.map((x) => `<li>${x}</li>`).join("")}</ul></div>`,
+          <div class="roles__col${i === 0 ? " is-you" : ""}"><h3${i === 2 ? " data-p-nome" : ""}>${t}</h3><ul>${itens.map((x) => `<li>${x}</li>`).join("")}</ul></div>`,
             )
             .join("")}
         </div>
@@ -424,20 +436,15 @@ const quemConduz = () => `
           </ul>
           <p class="org-panel__fact">Fundador atua na coordenação de serviços técnicos e trabalhos de campo desde ${operumdata.experienciaDesde}.</p>
         </article>
-        <article class="org-panel org-panel--partner${parceiro.provisorio ? " is-provisional" : ""} reveal" data-parceiro>
+        <article class="org-panel org-panel--partner reveal">
           <header class="org-panel__head">
             ${partnerMark("org-panel__mark")}
-            <div><span class="org-panel__kicker">Programa internacional</span><h3>${esc(parceiro.nome)}</h3></div>
-            ${provisionalTag()}
+            <div><span class="org-panel__kicker">Programa internacional</span><h3 data-p-nome>${PROGRAMA}</h3></div>
           </header>
           <ul class="org-panel__list">
-            ${parceiro.responsabilidades.map((r) => `<li>${esc(r)}</li>`).join("")}
+            ${responsabilidadesPrograma.map((r) => `<li>${r}</li>`).join("")}
           </ul>
-          ${
-            parceiro.provisorio
-              ? `<p class="org-panel__notice">Identidade ilustrativa desta demonstração. Não indica empresa confirmada nem contrato firmado.</p>`
-              : ""
-          }
+          <p class="org-panel__fact" data-p-only hidden>Organização responsável pelo programa apresentado neste link.</p>
         </article>
       </div>
     </div>
@@ -449,7 +456,6 @@ const field = (label, value) => `
 const confiancaSec = () => {
   const inst = operumdata.institucional;
   const canal = operumdata.contato.whatsapp ? `WhatsApp +${operumdata.contato.whatsapp}` : operumdata.contato.email || null;
-  const v = parceiro.verificacao;
   return `
   <section class="section" id="confianca" aria-labelledby="confianca-title">
     <div class="shell">
@@ -476,7 +482,7 @@ const confiancaSec = () => {
             ${field("Região de atuação", inst.regiaoAtuacao)}
             ${field("Canal oficial", canal)}
             <div class="cred__row"><dt>Privacidade</dt><dd><a href="privacidade/">${site.privacidade.publicada ? "Política de privacidade" : "Política em preparação"}</a></dd></div>
-            ${field(`Programa internacional`, !parceiro.provisorio && v.razaoSocial ? v.razaoSocial : null)}
+            <div class="cred__row" data-p-only hidden><dt>Programa internacional</dt><dd data-p-razao></dd></div>
           </dl>
           <p class="cred__note">Campos pendentes são publicados somente com dados reais e conferidos.</p>
         </section>
@@ -641,7 +647,6 @@ const footer = (prefix = "") => `
         <a href="${prefix}privacidade/">Privacidade</a>
       </nav>
       <div class="site-footer__legal">
-        ${parceiro.provisorio ? `<p>“${esc(parceiro.nome)}” é um nome ilustrativo usado nesta demonstração. Não representa empresa confirmada nem parceria contratada.</p>` : ""}
         <p>Imagens e interfaces são representações ilustrativas. Esta página não usa cookies nem recursos de terceiros.</p>
         <p>© ${new Date().getFullYear()} OperumData.</p>
       </div>
@@ -663,7 +668,7 @@ const doc = ({ base, title, description, canonical, body }) => `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}" />
-${site.demonstracao || parceiro.provisorio ? `<meta name="robots" content="noindex, nofollow" />` : ""}
+${site.demonstracao ? `<meta name="robots" content="noindex, nofollow" />` : ""}
 <link rel="canonical" href="${esc(canonical)}" />
 <meta name="theme-color" content="#050506" />
 <meta property="og:type" content="website" />
@@ -707,7 +712,8 @@ ${faq()}
 ${ctaFinal()}
 </main>
 ${footer()}
-${whatsappFloat()}`,
+${whatsappFloat()}
+${partnersData()}`,
   });
 }
 
