@@ -34,6 +34,23 @@ Campos `null` aparecem na página como **Pendente**. Nunca preencha com dados fi
 - Nenhum nome de organização em negociação no código, metadados ou commits.
   `npm run check` procura esses nomes (guardados apenas como hash).
 
+## Google e assistentes de IA
+
+O build gera, além das páginas:
+
+- `robots.txt` (libera buscadores e robôs de IA, aponta o sitemap) e `sitemap.xml`;
+- `llms.txt`: resumo em Markdown para assistentes de IA (padrão llmstxt.org);
+- `404.html` (não indexada);
+- metatags de busca e compartilhamento (título, descrição, canonical, Open Graph com
+  `assets/og-image.png` 1200×630) e dados estruturados schema.org (Organization,
+  WebSite, WebPage, Service, FAQPage) gerados a partir do texto da página.
+
+`site.indexar` controla a indexação. `NOINDEX=1 npm run build` gera uma cópia que pede
+para não ser indexada (útil quando o domínio próprio entrar no ar e o GitHub Pages
+virar apenas cópia). Depois de publicar no domínio final, cadastre o site no
+[Google Search Console](https://search.google.com/search-console) e no
+[Bing Webmaster Tools](https://www.bing.com/webmasters) e envie o `sitemap.xml`.
+
 ## Formulário
 
 Sem `formulario.endpoint`, o envio fica **desativado** e a página avisa que nada é enviado.

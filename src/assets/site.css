@@ -475,6 +475,8 @@ button, a, summary { -webkit-tap-highlight-color: transparent; }
 .site-footer { padding-block: 48px; }
 .site-footer__inner { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px 40px; }
 .site-footer__brand p { margin-top: 10px; color: var(--text-dim); font-size: 0.92rem; }
+.site-footer__main { color: var(--text); text-decoration: underline; text-decoration-color: var(--accent, #ff5a1f); text-underline-offset: 3px; }
+.site-footer__main:hover { color: var(--accent, #ff5a1f); }
 .social-links { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 0; padding: 0; list-style: none; }
 .social-links a { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; padding: 0 16px; border: 1px solid var(--line-strong); color: var(--text-soft); font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: color 200ms, border-color 200ms, background 200ms; }
 .social-links a:hover, .social-links a:focus-visible { border-color: var(--accent); color: var(--text); background: rgba(255, 90, 31, 0.08); }

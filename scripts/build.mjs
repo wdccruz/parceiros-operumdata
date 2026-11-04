@@ -2,7 +2,7 @@
 import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { renderIndex, renderPrivacy } from "../src/page.mjs";
+import { render404, renderIndex, renderLlms, renderPrivacy, renderRobots, renderSitemap } from "../src/page.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const out = join(root, "dist");
@@ -17,6 +17,10 @@ cpSync(join(root, "src/assets"), join(out, "assets"), {
 
 writeFileSync(join(out, "index.html"), renderIndex());
 writeFileSync(join(out, "privacidade/index.html"), renderPrivacy());
+writeFileSync(join(out, "404.html"), render404());
+writeFileSync(join(out, "robots.txt"), renderRobots());
+writeFileSync(join(out, "sitemap.xml"), renderSitemap(new Date().toISOString().slice(0, 10)));
+writeFileSync(join(out, "llms.txt"), renderLlms());
 writeFileSync(join(out, ".nojekyll"), "");
 
 // Domínio próprio: crie src/assets/CNAME com "parceiros.operumdata.com".

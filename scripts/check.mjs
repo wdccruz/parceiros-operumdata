@@ -45,7 +45,7 @@ function walk(dir) {
 const TEXT = /\.(html|css|js|mjs|json|md|yml|yaml|svg|txt)$|CNAME$|\.nojekyll$/;
 
 // 1. Arquivos essenciais
-for (const f of ["index.html", "privacidade/index.html", "assets/site.css", "assets/site.js", "assets/favicon.svg", ".nojekyll"]) {
+for (const f of ["index.html", "privacidade/index.html", "404.html", "robots.txt", "sitemap.xml", "llms.txt", "assets/og-image.png", "assets/apple-touch-icon.png", "assets/icon-512.png", "assets/site.css", "assets/site.js", "assets/favicon.svg", ".nojekyll"]) {
   if (!existsSync(join(dist, f))) fail(`Arquivo ausente: dist/${f}`);
 }
 if (errors.length) finish();
@@ -60,12 +60,21 @@ for (const file of walk(dist).filter((f) => f.endsWith(".html"))) {
   if (!/<title>[^<]{10,}<\/title>/.test(html)) fail(`${rel}: <title> ausente`);
   if (!/<meta name="description" content="[^"]{50,}"/.test(html)) fail(`${rel}: meta description ausente`);
   if (!html.includes('name="viewport"')) fail(`${rel}: viewport ausente`);
+  const title = html.match(/<title>([^<]*)<\/title>/)?.[1] || "";
+  if (title.length > 70) fail(`${rel}: <title> com ${title.length} caracteres (máx. 70)`);
+  const desc = html.match(/<meta name="description" content="([^"]*)"/)?.[1] || "";
+  if (desc.length > 170) fail(`${rel}: meta description com ${desc.length} caracteres (máx. 170)`);
+  if (!html.includes('property="og:image"')) fail(`${rel}: og:image ausente`);
+  for (const m of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
+    try { JSON.parse(m[1]); } catch { fail(`${rel}: JSON-LD inválido`); }
+  }
+  if (rel !== "404.html" && !html.includes('rel="canonical"')) fail(`${rel}: canonical ausente`);
 
   const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
   for (const m of html.matchAll(/\s(?:href|src)="([^"]*)"/g)) {
     const url = m[1];
     if (/^(https?:|mailto:|tel:)/.test(url)) {
-      if (/^https?:/.test(url) && !url.startsWith(site.url) && !url.startsWith("https://wa.me/") && !/^https:\/\/(www\.)?(linkedin\.com|facebook\.com)\//.test(url)) fail(`${rel}: recurso externo não esperado: ${url}`);
+      if (/^https?:/.test(url) && !url.startsWith(site.url) && !url.startsWith(site.siteInstitucional) && !url.startsWith("https://wa.me/") && !/^https:\/\/(www\.)?(linkedin\.com|facebook\.com)\//.test(url)) fail(`${rel}: recurso externo não esperado: ${url}`);
       continue;
     }
     if (url.startsWith("/")) { fail(`${rel}: caminho absoluto impede a migração de domínio: ${url}`); continue; }
@@ -98,7 +107,18 @@ for (const p of parceiros) {
 }
 if (!index.includes("Programas internacionais")) fail("A página padrão deve falar de programas internacionais");
 if (/Exemplo\.com/i.test(index)) fail("Nome fictício ainda presente na página");
-if (site.demonstracao && !index.includes('name="robots" content="noindex')) fail("Demonstração deve pedir noindex");
+// Indexação: meta robots, robots.txt e sitemap coerentes com site.indexar.
+const robotsTxt = readFileSync(join(dist, "robots.txt"), "utf8");
+if (site.indexar) {
+  if (index.includes('content="noindex')) fail("site.indexar = true, mas a página pede noindex");
+  if (!robotsTxt.includes(`Sitemap: ${site.url}sitemap.xml`)) fail("robots.txt sem a linha Sitemap");
+  if (/^Disallow: \/$/m.test(robotsTxt)) fail("robots.txt bloqueia o site inteiro");
+} else if (!index.includes('name="robots" content="noindex')) fail("site.indexar = false: a página deve pedir noindex");
+if (!index.includes('"@type":"FAQPage"')) fail("Dados estruturados FAQPage ausentes");
+if (!readFileSync(join(dist, "404.html"), "utf8").includes('content="noindex')) fail("404.html deve pedir noindex");
+const sitemap = readFileSync(join(dist, "sitemap.xml"), "utf8");
+for (const loc of sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)) if (!loc[1].startsWith(site.url)) fail(`sitemap.xml: URL fora do site: ${loc[1]}`);
+if (!readFileSync(join(dist, "llms.txt"), "utf8").startsWith("# OperumData")) fail("llms.txt fora do formato");
 if (!site.formulario.endpoint) {
   const button = index.match(/<button[^>]*type="submit"[^>]*>/);
   if (!button || !/\sdisabled/.test(button[0])) fail("Sem endpoint configurado, o botão de envio deve estar desabilitado");

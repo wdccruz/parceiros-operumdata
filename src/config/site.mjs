@@ -9,9 +9,18 @@ export const site = {
   // O pacote da HostGator define SITE_URL (veja o README).
   url: process.env.SITE_URL || "https://wdccruz.github.io/parceiros-operumdata/",
 
-  // Versão de demonstração: mostra a faixa de aviso e pede aos buscadores
-  // que não indexem a página enquanto o parceiro for ilustrativo.
+  // Site institucional internacional da OperumData (dados estruturados e rodapé).
+  siteInstitucional:
+    process.env.MAIN_SITE_URL ||
+    (/operumdata\.com\/$/.test(process.env.SITE_URL || "") ? "https://operumdata.com/" : "https://wdccruz.github.io/operumdata-site/"),
+
+  // Versão de demonstração: mostra a faixa de aviso de que o cadastro ainda
+  // não envia dados.
   demonstracao: true,
+
+  // Indexação por Google e assistentes de IA (robots, sitemap, llms.txt).
+  // NOINDEX=1 no build gera uma cópia que pede para não ser indexada.
+  indexar: !process.env.NOINDEX,
 
   formulario: {
     // URL que recebe o cadastro via POST (JSON). null = envio desativado.

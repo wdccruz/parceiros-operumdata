@@ -9,15 +9,25 @@ AddDefaultCharset UTF-8
   RewriteCond %{HTTPS} !=on
   RewriteCond %{HTTP:X-Forwarded-Proto} !https
   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Endereço único para o Google: www.dominio → dominio (evita conteúdo duplicado)
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
 </IfModule>
+
+# Página de erro (pede para não ser indexada)
+ErrorDocument 404 /404.html
 
 # Tipos de arquivo
 AddType font/otf .otf
 AddType image/svg+xml .svg
+AddType application/xml .xml
+AddType text/plain .txt
+AddCharset UTF-8 .txt .xml .html .css .js
 
 # Compressão
 <IfModule mod_deflate.c>
-  AddOutputFilterByType DEFLATE text/html text/css application/javascript image/svg+xml font/otf
+  AddOutputFilterByType DEFLATE text/html text/css text/plain application/javascript application/xml image/svg+xml font/otf
 </IfModule>
 
 # Cache: páginas sempre atualizadas, arquivos estáticos por 30 dias
@@ -28,6 +38,9 @@ AddType image/svg+xml .svg
   ExpiresByType application/javascript "access plus 30 days"
   ExpiresByType image/svg+xml "access plus 30 days"
   ExpiresByType font/otf "access plus 1 year"
+  ExpiresByType image/png "access plus 30 days"
+  ExpiresByType text/plain "access plus 1 day"
+  ExpiresByType application/xml "access plus 1 day"
 </IfModule>
 
 # Segurança básica

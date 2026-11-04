@@ -279,7 +279,7 @@ const hero = () => `
       <div class="hero__content">
         <p class="kicker"><span class="signal-dot" aria-hidden="true"></span>Programa internacional · Participação remunerada</p>
         <h1 id="hero-title">O trabalho que sua empresa já realiza pode gerar <em>receita complementar.</em></h1>
-        <p class="hero__lead">A OperumData aproxima empresas brasileiras de programas internacionais de coleta de dados de atividades profissionais reais. Empresas compatíveis podem participar e ser remuneradas conforme os requisitos e as condições de cada programa.</p>
+        <p class="hero__lead">A OperumData aproxima empresas brasileiras de programas internacionais de coleta de dados para IA e robótica, a partir de atividades profissionais reais. Empresas compatíveis podem participar e ser remuneradas conforme os requisitos e as condições de cada programa.</p>
         <div class="hero__actions">
           <a class="btn btn--primary btn--lg" href="#cadastro">Quero conhecer a oportunidade <span class="btn__arrow" aria-hidden="true">→</span></a>
           <a class="btn btn--ghost btn--lg" href="#como-acontece">Entenda como funciona</a>
@@ -657,6 +657,7 @@ const footer = (prefix = "") => `
       <div class="site-footer__brand">
         <a class="wordmark" href="${prefix || "./"}" aria-label="OperumData — início">${wordmarkInner()}</a>
         <p>${esc(operumdata.papel)}.</p>
+        <p><a class="site-footer__main" href="${esc(site.siteInstitucional)}">Site internacional da OperumData ↗</a></p>
         ${socialLinks()}
       </div>
       <nav aria-label="Rodapé">
@@ -674,29 +675,118 @@ const footer = (prefix = "") => `
 // Documento
 // ---------------------------------------------------------------------------
 
-const TITLE = "OperumData | Parceiros Brasil — receita complementar com o trabalho que sua empresa já realiza";
+const TITLE = "Receita complementar para empresas | OperumData Parceiros";
 const DESCRIPTION =
-  "Receita complementar a partir do trabalho que sua empresa já realiza. A OperumData aproxima empresas brasileiras de programas internacionais de coleta de dados com participação remunerada, conforme os critérios de cada programa.";
+  "Sua empresa pode ser remunerada pela captação autorizada do trabalho que já realiza, em programas internacionais de dados para IA e robótica, conforme critérios.";
+const OG_ALT = "OperumData Parceiros Brasil: o trabalho que sua empresa já realiza pode gerar receita complementar.";
 
-const doc = ({ base, title, description, canonical, body }) => `<!doctype html>
+// Dados estruturados (schema.org) para buscadores e assistentes de IA.
+// Só fatos publicados na página: sem avaliações, números ou endereço inventados.
+const orgId = `${site.siteInstitucional}#organization`;
+const organizationLd = () => ({
+  "@type": "Organization",
+  "@id": orgId,
+  name: operumdata.nome,
+  url: site.siteInstitucional,
+  logo: { "@type": "ImageObject", url: `${site.url}assets/icon-512.png`, width: 512, height: 512 },
+  ...(operumdata.institucional.razaoSocial ? { legalName: operumdata.institucional.razaoSocial } : {}),
+  ...(operumdata.institucional.cnpj ? { taxID: operumdata.institucional.cnpj } : {}),
+  description: "Operações de campo no Brasil para coleta de dados do mundo real voltada a IA e robótica.",
+  areaServed: { "@type": "Country", name: "Brasil" },
+  ...(operumdata.redes?.facebook ? { sameAs: [operumdata.redes.facebook] } : {}),
+});
+
+const stripTags = (html) => html.replace(/<[^>]+>/g, "");
+
+const indexLd = () => ({
+  "@context": "https://schema.org",
+  "@graph": [
+    organizationLd(),
+    {
+      "@type": "WebSite",
+      "@id": `${site.url}#website`,
+      url: site.url,
+      name: "OperumData Parceiros Brasil",
+      inLanguage: "pt-BR",
+      publisher: { "@id": orgId },
+    },
+    {
+      "@type": "WebPage",
+      "@id": `${site.url}#webpage`,
+      url: site.url,
+      name: TITLE,
+      description: DESCRIPTION,
+      inLanguage: "pt-BR",
+      isPartOf: { "@id": `${site.url}#website` },
+      about: { "@id": `${site.url}#service` },
+      primaryImageOfPage: { "@type": "ImageObject", url: `${site.url}assets/og-image.png`, width: 1200, height: 630 },
+    },
+    {
+      "@type": "Service",
+      "@id": `${site.url}#service`,
+      name: "Participação de empresas brasileiras em programas internacionais de coleta de dados",
+      serviceType: "Coordenação de coleta de dados do mundo real para IA e robótica",
+      description:
+        "A OperumData aproxima empresas brasileiras de programas internacionais de coleta de dados para IA e robótica. Empresas compatíveis podem ser remuneradas pela captação autorizada de atividades que já realizam, conforme os requisitos e as condições de cada programa.",
+      provider: { "@id": orgId },
+      areaServed: { "@type": "Country", name: "Brasil" },
+      audience: { "@type": "BusinessAudience", name: "Proprietários e gestores de empresas brasileiras" },
+    },
+    {
+      "@type": "FAQPage",
+      "@id": `${site.url}#faq`,
+      inLanguage: "pt-BR",
+      mainEntity: perguntas.map(([q, a]) => ({
+        "@type": "Question",
+        name: stripTags(q),
+        acceptedAnswer: { "@type": "Answer", text: stripTags(a) },
+      })),
+    },
+  ],
+});
+
+const jsonLd = (data) =>
+  data ? `<script type="application/ld+json">${JSON.stringify(data).replace(/</g, "\\u003c")}</script>` : "";
+
+const robotsMeta = (noindex) =>
+  noindex || !site.indexar
+    ? `<meta name="robots" content="noindex, follow" />`
+    : `<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />`;
+
+const doc = ({ base, title, description, canonical, body, ld, noindex }) => `<!doctype html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}" />
-${site.demonstracao ? `<meta name="robots" content="noindex, nofollow" />` : ""}
-<link rel="canonical" href="${esc(canonical)}" />
+${robotsMeta(noindex)}
+${canonical ? `<link rel="canonical" href="${esc(canonical)}" />` : ""}
+<link rel="alternate" type="text/plain" title="Resumo para assistentes de IA" href="${base}llms.txt" />
 <meta name="theme-color" content="#050506" />
+<meta name="color-scheme" content="dark" />
+<meta name="author" content="OperumData" />
 <meta property="og:type" content="website" />
 <meta property="og:locale" content="pt_BR" />
-<meta property="og:site_name" content="OperumData" />
+<meta property="og:site_name" content="OperumData Parceiros Brasil" />
 <meta property="og:title" content="${esc(title)}" />
 <meta property="og:description" content="${esc(description)}" />
-<meta property="og:url" content="${esc(canonical)}" />
+${canonical ? `<meta property="og:url" content="${esc(canonical)}" />` : ""}
+<meta property="og:image" content="${esc(site.url)}assets/og-image.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="${esc(OG_ALT)}" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="${esc(title)}" />
+<meta name="twitter:description" content="${esc(description)}" />
+<meta name="twitter:image" content="${esc(site.url)}assets/og-image.png" />
+<meta name="twitter:image:alt" content="${esc(OG_ALT)}" />
 <link rel="icon" href="${base}assets/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="${base}assets/apple-touch-icon.png" />
 <link rel="preload" href="${base}assets/fonts/urw-gothic-demi.otf" as="font" type="font/otf" crossorigin />
 <link rel="stylesheet" href="${base}assets/site.css" />
+${jsonLd(ld)}
 <script>document.documentElement.classList.add("js");setTimeout(function(){if(!window.__operum)document.documentElement.classList.remove("js")},2500)</script>
 </head>
 <body>
@@ -715,6 +805,7 @@ export function renderIndex() {
     title: TITLE,
     description: DESCRIPTION,
     canonical: site.url,
+    ld: indexLd(),
     body: `${demoBanner()}
 ${header()}
 <main id="conteudo">
@@ -742,6 +833,15 @@ export function renderPrivacy() {
     title: "Política de privacidade | OperumData Parceiros Brasil",
     description: "Situação da política de privacidade da página OperumData Parceiros Brasil e o que ela vai informar antes da ativação do cadastro.",
     canonical: `${site.url}privacidade/`,
+    ld: {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      url: `${site.url}privacidade/`,
+      name: "Política de privacidade | OperumData Parceiros Brasil",
+      inLanguage: "pt-BR",
+      isPartOf: { "@id": `${site.url}#website` },
+      publisher: { "@id": orgId },
+    },
     body: `${demoBanner()}
 <header class="site-header">
   <div class="shell site-header__inner site-header__inner--simple">
@@ -781,5 +881,120 @@ export function renderPrivacy() {
   </div>
 </main>
 ${footer("../")}`,
+  });
+}
+
+
+// ---------------------------------------------------------------------------
+// Arquivos para buscadores e assistentes de IA
+// ---------------------------------------------------------------------------
+
+// Robôs de IA liberados explicitamente (além do * geral), para deixar clara
+// a permissão de leitura e citação.
+const AI_BOTS = [
+  "GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-User", "Claude-SearchBot", "anthropic-ai",
+  "PerplexityBot", "Perplexity-User", "Google-Extended", "Applebot", "Applebot-Extended", "Bingbot",
+  "DuckAssistBot", "Meta-ExternalAgent", "MistralAI-User", "CCBot", "Amazonbot", "cohere-ai",
+];
+
+export function renderRobots() {
+  if (!site.indexar) return "User-agent: *\nDisallow: /\n";
+  return `# OperumData Parceiros Brasil
+# Conteúdo público: buscadores e assistentes de IA podem ler e citar.
+User-agent: *
+Allow: /
+
+${AI_BOTS.map((b) => `User-agent: ${b}`).join("\n")}
+Allow: /
+
+Sitemap: ${site.url}sitemap.xml
+`;
+}
+
+export function renderSitemap(lastmod) {
+  const urls = [
+    [site.url, "1.0", "weekly"],
+    [`${site.url}privacidade/`, "0.3", "monthly"],
+  ];
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+${urls
+  .map(
+    ([loc, priority, freq], i) => `  <url>
+    <loc>${loc}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>${freq}</changefreq>
+    <priority>${priority}</priority>${
+      i === 0
+        ? `
+    <image:image><image:loc>${site.url}assets/og-image.png</image:loc></image:image>`
+        : ""
+    }
+  </url>`,
+  )
+  .join("\n")}
+</urlset>
+`;
+}
+
+// Resumo em Markdown no padrão llms.txt (https://llmstxt.org/).
+export function renderLlms() {
+  const lista = (items) => items.map(([t, d]) => `- ${t}: ${d}`).join("\n");
+  return `# OperumData Parceiros Brasil
+
+> A OperumData aproxima empresas brasileiras de programas internacionais de coleta de dados para IA e robótica. Empresas compatíveis podem ser remuneradas pela captação autorizada de atividades profissionais que já realizam, conforme os requisitos e as condições de cada programa. Não há valor fixo divulgado, remuneração automática nem garantia de aprovação.
+
+Página em português para proprietários e gestores de empresas no Brasil. A OperumData faz a coordenação e o relacionamento no Brasil; cada programa internacional define finalidade dos dados, requisitos de captação, critérios de elegibilidade e condições de remuneração.
+
+## Páginas
+
+- [Parceiros Brasil](${site.url}): oportunidade, como a captação acontece, regras de confiança, cadastro de interesse e perguntas frequentes
+- [Política de privacidade](${site.url}privacidade/): situação atual da política e o que ela vai informar (LGPD)
+- [Site internacional da OperumData](${site.siteInstitucional}): operações de campo no Brasil para coleta de dados do mundo real (em inglês e português)
+
+## Como funciona
+
+${lista(fluxo)}
+
+## Etapas
+
+${lista(etapas)}
+
+## Regras de confiança
+
+${confianca.map(([, t, d]) => `- ${t}: ${d}`).join("\n")}
+
+## Ambientes com potencial (exemplos)
+
+${setores.map(([, t]) => `- ${t}`).join("\n")}
+
+## Perguntas frequentes
+
+${perguntas.map(([q, a]) => `### ${stripTags(q)}\n\n${stripTags(a)}`).join("\n\n")}
+
+## Situação atual
+
+- Fase inicial: o cadastro de interesse da página ainda não envia dados.
+- A OperumData não divulga clientes, números ou projetos concluídos de coleta para IA.
+- Imagens e interfaces da página são representações ilustrativas.
+`;
+}
+
+export function render404() {
+  return doc({
+    base: site.url,
+    title: "Página não encontrada | OperumData Parceiros Brasil",
+    description: "O endereço acessado não existe. Volte para a página OperumData Parceiros Brasil e conheça a oportunidade de receita complementar.",
+    canonical: null,
+    noindex: true,
+    body: `
+<main id="conteudo" class="legal">
+  <div class="shell legal__inner">
+    <p class="kicker"><span class="signal-dot" aria-hidden="true"></span>Erro 404</p>
+    <h1>Página não encontrada.</h1>
+    <p>O endereço acessado não existe ou mudou.</p>
+    <p><a class="btn btn--primary" href="${esc(site.url)}">Ir para a página principal</a></p>
+  </div>
+</main>`,
   });
 }
