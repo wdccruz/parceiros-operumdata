@@ -6,10 +6,19 @@
 // na seção de confiança, no FAQ e no formulário. Visuais de captação sempre
 // com equipamento dedicado (capacete, peito, suporte), nunca celular.
 
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { operumdata } from "./config/operumdata.mjs";
 import { parceiros } from "./config/parceiros.mjs";
 import { site } from "./config/site.mjs";
 import { trackingActive, trackingSnippet } from "./tracking.mjs";
+
+// Versão de cada arquivo estático no link (?v=...): o navegador guarda CSS e JS
+// por 30 dias, então uma mudança só chega ao visitante se a URL mudar.
+const versao = (arquivo) =>
+  createHash("sha256").update(readFileSync(new URL(`./assets/${arquivo}`, import.meta.url))).digest("hex").slice(0, 10);
+const VERSAO_CSS = versao("site.css");
+const VERSAO_JS = versao("site.js");
 
 // Tags só no pacote oficial e só com algum código preenchido.
 const tags = site.rastreamento.oficial ? site.rastreamento : { ga4: null, metaPixel: null, googleVerificacao: null };
@@ -800,7 +809,7 @@ ${canonical ? `<meta property="og:url" content="${esc(canonical)}" />` : ""}
 <link rel="icon" href="${base}assets/favicon.svg" type="image/svg+xml" />
 <link rel="apple-touch-icon" href="${base}assets/apple-touch-icon.png" />
 <link rel="preload" href="${base}assets/fonts/urw-gothic-demi.otf" as="font" type="font/otf" crossorigin />
-<link rel="stylesheet" href="${base}assets/site.css" />
+<link rel="stylesheet" href="${base}assets/site.css?v=${VERSAO_CSS}" />
 ${jsonLd(ld)}
 <script>document.documentElement.classList.add("js");setTimeout(function(){if(!window.__operum)document.documentElement.classList.remove("js")},2500)</script>
 </head>
@@ -809,7 +818,7 @@ ${jsonLd(ld)}
 <div class="site">
 ${body}
 </div>
-<script src="${base}assets/site.js" defer></script>
+<script src="${base}assets/site.js?v=${VERSAO_JS}" defer></script>
 ${trackingSnippet({ ...tags, lang: "pt", privacyHref: `${base}privacidade/`, footerSelector: ".site-footer__legal" })}
 </body>
 </html>

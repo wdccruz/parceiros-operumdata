@@ -79,7 +79,8 @@ for (const file of walk(dist).filter((f) => f.endsWith(".html"))) {
       continue;
     }
     if (url.startsWith("/")) { fail(`${rel}: caminho absoluto impede a migração de domínio: ${url}`); continue; }
-    const [path, hash] = url.split("#");
+    const [pathComBusca, hash] = url.split("#");
+    const path = pathComBusca.split("?")[0];
     if (!path) { if (hash && !ids.has(hash)) fail(`${rel}: âncora inexistente #${hash}`); continue; }
     let target = resolve(dirname(file), path);
     if (path.endsWith("/") || path === "./" || path === "../") target = join(target, "index.html");
