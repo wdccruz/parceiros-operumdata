@@ -898,7 +898,8 @@ const AI_BOTS = [
 ];
 
 export function renderRobots() {
-  if (!site.indexar) return "User-agent: *\nDisallow: /\n";
+  // Cópia não indexada: o rastreio continua liberado para o Google ver o noindex das páginas.
+  if (!site.indexar) return "# Cópia não indexada (as páginas pedem noindex)\nUser-agent: *\nAllow: /\n";
   return `# OperumData Parceiros Brasil
 # Conteúdo público: buscadores e assistentes de IA podem ler e citar.
 User-agent: *

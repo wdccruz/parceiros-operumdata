@@ -45,9 +45,9 @@ O build gera, além das páginas:
   `assets/og-image.png` 1200×630) e dados estruturados schema.org (Organization,
   WebSite, WebPage, Service, FAQPage) gerados a partir do texto da página.
 
-`site.indexar` controla a indexação. `NOINDEX=1 npm run build` gera uma cópia que pede
-para não ser indexada (útil quando o domínio próprio entrar no ar e o GitHub Pages
-virar apenas cópia). Depois de publicar no domínio final, cadastre o site no
+`site.indexar` controla a indexação. O deploy do GitHub Pages roda com `NOINDEX=1`
+(é só uma cópia, as páginas pedem noindex); o pacote da HostGator, endereço oficial,
+é sempre indexável. Depois de publicar no domínio final, cadastre o site no
 [Google Search Console](https://search.google.com/search-console) e no
 [Bing Webmaster Tools](https://www.bing.com/webmasters) e envie o `sitemap.xml`.
 

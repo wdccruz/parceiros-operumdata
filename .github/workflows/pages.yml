@@ -19,6 +19,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # GitHub Pages é só uma cópia: o endereço oficial (HostGator) é o indexado.
+    env:
+      NOINDEX: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
