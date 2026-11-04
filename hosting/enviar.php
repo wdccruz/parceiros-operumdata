@@ -86,9 +86,63 @@ $cab = [
   'Content-Transfer-Encoding: 8bit',
 ];
 
-$ok = mail($cfg['destino'], '=?UTF-8?B?' . base64_encode($assunto) . '?=', implode("\r\n", $linhas), implode("\r\n", $cab), '-f' . $remetente);
+$assuntoMime = '=?UTF-8?B?' . base64_encode($assunto) . '?=';
+$corpo = implode("\r\n", $linhas);
+
+if (!empty($cfg['smtp']['senha'])) {
+  // Envio autenticado direto no provedor de e-mail (ex.: Titan). Mais confiável
+  // que mail(), que passa pelo filtro de saída da hospedagem.
+  $ok = enviar_smtp($cfg['smtp'], $cfg['destino'], $assuntoMime, $corpo);
+} else {
+  $ok = mail($cfg['destino'], $assuntoMime, $corpo, implode("\r\n", $cab), '-f' . $remetente);
+}
 if (!$ok) responder(502, false, 'envio');
 
 $hist[] = $agora;
 @file_put_contents($marca, implode(',', $hist), LOCK_EX);
 responder(200, true);
+
+// Cliente SMTP mínimo (SSL na porta 465, AUTH LOGIN). Sem bibliotecas externas.
+function enviar_smtp($s, $destino, $assuntoMime, $corpo) {
+  $host = $s['host'] ?? 'smtp.titan.email';
+  $porta = (int) ($s['porta'] ?? 465);
+  $usuario = $s['usuario'];
+  $ctx = stream_context_create(['ssl' => ['verify_peer' => true, 'verify_peer_name' => true]]);
+  $f = @stream_socket_client("ssl://$host:$porta", $errno, $errstr, 15, STREAM_CLIENT_CONNECT, $ctx);
+  if (!$f) return false;
+  stream_set_timeout($f, 15);
+  $ler = function () use ($f) {
+    $r = '';
+    while (($l = fgets($f, 515)) !== false) { $r .= $l; if (isset($l[3]) && $l[3] === ' ') break; }
+    return $r;
+  };
+  $cmd = function ($c, $esperado) use ($f, $ler) {
+    if ($c !== null) fwrite($f, $c . "\r\n");
+    $r = $ler();
+    return strpos($r, (string) $esperado) === 0;
+  };
+  $data = str_replace("\n.", "\n..", str_replace("\r\n", "\n", $corpo));
+  $data = str_replace("\n", "\r\n", $data);
+  $msg = implode("\r\n", [
+    'From: OperumData Parceiros <' . $usuario . '>',
+    'To: <' . $destino . '>',
+    'Subject: ' . $assuntoMime,
+    'Date: ' . date('r'),
+    'Message-ID: <' . bin2hex(random_bytes(12)) . '@' . substr(strrchr($usuario, '@'), 1) . '>',
+    'MIME-Version: 1.0',
+    'Content-Type: text/plain; charset=UTF-8',
+    'Content-Transfer-Encoding: 8bit',
+  ]) . "\r\n\r\n" . $data;
+  $ok = $cmd(null, 220)
+    && $cmd('EHLO ' . ($_SERVER['HTTP_HOST'] ?? 'localhost'), 250)
+    && $cmd('AUTH LOGIN', 334)
+    && $cmd(base64_encode($usuario), 334)
+    && $cmd(base64_encode($s['senha']), 235)
+    && $cmd('MAIL FROM:<' . $usuario . '>', 250)
+    && $cmd('RCPT TO:<' . $destino . '>', 250)
+    && $cmd('DATA', 354)
+    && $cmd($msg . "\r\n.", 250);
+  @fwrite($f, "QUIT\r\n");
+  fclose($f);
+  return $ok;
+}
