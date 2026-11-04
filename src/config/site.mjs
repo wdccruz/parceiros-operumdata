@@ -27,7 +27,7 @@ export const site = {
   // Carregam somente depois do "Aceitar" na barra de cookies (LGPD).
   rastreamento: {
     oficial: Boolean(process.env.OFICIAL),
-    ga4: null, // Google Analytics 4, ex.: "G-XXXXXXXXXX"
+    ga4: "G-JLCZT1CL46", // Google Analytics 4, ex.: "G-XXXXXXXXXX"
     metaPixel: null, // Meta Pixel, só números, ex.: "1234567890"
     googleVerificacao: null, // opcional: conteúdo da metatag google-site-verification
   },
