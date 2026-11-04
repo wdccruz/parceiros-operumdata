@@ -11,7 +11,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const SITE_URL = process.env.SITE_URL || "https://parceiros.operumdata.com/";
 if (!/^https:\/\/[^/]+\/$/.test(SITE_URL)) throw new Error(`SITE_URL deve ser https://dominio/ (com barra final): ${SITE_URL}`);
 // O pacote da HostGator é o endereço oficial: sempre indexável.
-const env = { ...process.env, NOINDEX: "", SITE_URL };
+const env = { ...process.env, NOINDEX: "", OFICIAL: "1", SITE_URL };
 
 execSync("node scripts/build.mjs && node scripts/check.mjs", { cwd: root, stdio: "inherit", env });
 copyFileSync(join(root, "hosting/htaccess"), join(root, "dist/.htaccess"));

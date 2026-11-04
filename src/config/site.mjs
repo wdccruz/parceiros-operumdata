@@ -22,6 +22,16 @@ export const site = {
   // NOINDEX=1 no build gera uma cópia que pede para não ser indexada.
   indexar: !process.env.NOINDEX,
 
+  // Tags oficiais do Google e da Meta. Só entram no pacote da HostGator
+  // (endereço oficial). A cópia do GitHub Pages nunca carrega tags.
+  // Carregam somente depois do "Aceitar" na barra de cookies (LGPD).
+  rastreamento: {
+    oficial: Boolean(process.env.OFICIAL),
+    ga4: null, // Google Analytics 4, ex.: "G-XXXXXXXXXX"
+    metaPixel: null, // Meta Pixel, só números, ex.: "1234567890"
+    googleVerificacao: null, // opcional: conteúdo da metatag google-site-verification
+  },
+
   formulario: {
     // URL que recebe o cadastro via POST (JSON). null = envio desativado.
     // Nunca coloque tokens ou segredos aqui: este arquivo é público.

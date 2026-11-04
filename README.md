@@ -51,6 +51,15 @@ O build gera, além das páginas:
 [Google Search Console](https://search.google.com/search-console) e no
 [Bing Webmaster Tools](https://www.bing.com/webmasters) e envie o `sitemap.xml`.
 
+## Google Analytics e Meta Pixel
+
+Preencha `rastreamento.ga4` e `rastreamento.metaPixel` em `src/config/site.mjs` e gere o
+pacote da HostGator. As tags entram só nesse pacote (nunca no GitHub Pages) e só carregam
+depois do "Aceitar" na barra de cookies (LGPD). Com tags ativas, o rodapé e a página de
+privacidade passam a citar o Google e a Meta, e o rodapé ganha o link "Cookies" para rever
+a escolha. Verificação do Search Console: de preferência pelo registro TXT no DNS
+(propriedade de domínio); a metatag é opcional (`rastreamento.googleVerificacao`).
+
 ## Formulário
 
 Sem `formulario.endpoint`, o envio fica **desativado** e a página avisa que nada é enviado.

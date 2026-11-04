@@ -9,6 +9,11 @@
 import { operumdata } from "./config/operumdata.mjs";
 import { parceiros } from "./config/parceiros.mjs";
 import { site } from "./config/site.mjs";
+import { trackingActive, trackingSnippet } from "./tracking.mjs";
+
+// Tags só no pacote oficial e só com algum código preenchido.
+const tags = site.rastreamento.oficial ? site.rastreamento : { ga4: null, metaPixel: null, googleVerificacao: null };
+const tagsAtivas = trackingActive(tags);
 
 const esc = (value) =>
   String(value)
@@ -665,7 +670,11 @@ const footer = (prefix = "") => `
         <a href="${prefix}privacidade/">Privacidade</a>
       </nav>
       <div class="site-footer__legal">
-        <p>Imagens e interfaces são representações ilustrativas. Esta página não usa cookies nem recursos de terceiros.</p>
+        <p>Imagens e interfaces são representações ilustrativas. ${
+          tagsAtivas
+            ? "Com a sua autorização, esta página usa cookies do Google Analytics e da Meta para medir visitas."
+            : "Esta página não usa cookies nem recursos de terceiros."
+        }</p>
         <p>© ${new Date().getFullYear()} OperumData.</p>
       </div>
     </div>
@@ -766,6 +775,7 @@ ${canonical ? `<link rel="canonical" href="${esc(canonical)}" />` : ""}
 <meta name="theme-color" content="#050506" />
 <meta name="color-scheme" content="dark" />
 <meta name="author" content="OperumData" />
+${tags.googleVerificacao ? `<meta name="google-site-verification" content="${esc(tags.googleVerificacao)}" />` : ""}
 <meta property="og:type" content="website" />
 <meta property="og:locale" content="pt_BR" />
 <meta property="og:site_name" content="OperumData Parceiros Brasil" />
@@ -795,6 +805,7 @@ ${jsonLd(ld)}
 ${body}
 </div>
 <script src="${base}assets/site.js" defer></script>
+${trackingSnippet({ ...tags, lang: "pt", privacyHref: `${base}privacidade/`, footerSelector: ".site-footer__legal" })}
 </body>
 </html>
 `;
@@ -858,7 +869,11 @@ export function renderPrivacy() {
     </div>
 
     <h2>O que acontece hoje</h2>
-    <p>Nesta versão de demonstração, o formulário de cadastro está desativado: nenhum dado digitado é enviado ou armazenado. A página não usa cookies, ferramentas de análise nem recursos de terceiros, e não guarda informações no seu navegador.</p>
+    <p>Nesta versão de demonstração, o formulário de cadastro está desativado: nenhum dado digitado é enviado ou armazenado. ${
+      tagsAtivas
+        ? `Com a sua autorização, dada na barra de cookies, a página carrega ${[tags.ga4 && "o Google Analytics (Google)", tags.metaPixel && "o Meta Pixel (Meta)"].filter(Boolean).join(" e ")} para medir visitas e a divulgação. Sem autorização, nenhum desses recursos é carregado. A sua escolha fica guardada no seu navegador e pode ser revista a qualquer momento pelo link "Cookies" no rodapé.`
+        : "A página não usa cookies, ferramentas de análise nem recursos de terceiros, e não guarda informações no seu navegador."
+    }</p>
 
     <h2>O que a política vai informar</h2>
     <p>Antes de qualquer coleta de dados de contato, esta página vai identificar, conforme a Lei Geral de Proteção de Dados (Lei nº 13.709/2018):</p>

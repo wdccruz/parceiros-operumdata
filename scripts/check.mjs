@@ -6,6 +6,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parceiros } from "../src/config/parceiros.mjs";
+import { validateTracking } from "../src/tracking.mjs";
 import { site } from "../src/config/site.mjs";
 import { operumdata as operumdataCfg } from "../src/config/operumdata.mjs";
 
@@ -114,6 +115,13 @@ if (site.indexar) {
   if (!robotsTxt.includes(`Sitemap: ${site.url}sitemap.xml`)) fail("robots.txt sem a linha Sitemap");
   if (/^Disallow: \/$/m.test(robotsTxt)) fail("robots.txt bloqueia o site inteiro");
 } else if (!index.includes('name="robots" content="noindex')) fail("site.indexar = false: a página deve pedir noindex");
+// Tags: nunca na cópia do GitHub; códigos válidos no pacote oficial.
+const errosTags = validateTracking(site.rastreamento);
+for (const e of errosTags) fail(e);
+const temTags = /googletagmanager|fbevents/.test(index);
+if (!site.rastreamento.oficial && temTags) fail("Tags do Google/Meta na cópia que não é oficial");
+if (temTags && !index.includes('id="od-consent"')) fail("Tags sem barra de consentimento");
+if (temTags && index.includes("não usa cookies")) fail("Rodapé diz que não usa cookies, mas há tags ativas");
 if (!index.includes('"@type":"FAQPage"')) fail("Dados estruturados FAQPage ausentes");
 if (!readFileSync(join(dist, "404.html"), "utf8").includes('content="noindex')) fail("404.html deve pedir noindex");
 const sitemap = readFileSync(join(dist, "sitemap.xml"), "utf8");
