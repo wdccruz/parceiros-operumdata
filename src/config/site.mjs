@@ -16,7 +16,7 @@ export const site = {
 
   // Versão de demonstração: mostra a faixa de aviso de que o cadastro ainda
   // não envia dados.
-  demonstracao: true,
+  demonstracao: !process.env.OFICIAL,
 
   // Indexação por Google e assistentes de IA (robots, sitemap, llms.txt).
   // NOINDEX=1 no build gera uma cópia que pede para não ser indexada.
@@ -35,12 +35,14 @@ export const site = {
   formulario: {
     // URL que recebe o cadastro via POST (JSON). null = envio desativado.
     // Nunca coloque tokens ou segredos aqui: este arquivo é público.
-    endpoint: null,
+    // Pacote da HostGator: enviar.php (hosting/enviar.php) manda o cadastro por e-mail.
+    // O GitHub Pages não roda PHP, então lá o envio fica desativado.
+    endpoint: process.env.OFICIAL ? "enviar.php" : null,
   },
 
   // Política de privacidade. Enquanto `publicada` for false, a página
   // privacidade/ mostra apenas o que será exigido antes da ativação.
   privacidade: {
-    publicada: false,
+    publicada: Boolean(process.env.OFICIAL),
   },
 };

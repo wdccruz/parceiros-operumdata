@@ -15,10 +15,14 @@ const env = { ...process.env, NOINDEX: "", OFICIAL: "1", SITE_URL };
 
 execSync("node scripts/build.mjs && node scripts/check.mjs", { cwd: root, stdio: "inherit", env });
 copyFileSync(join(root, "hosting/htaccess"), join(root, "dist/.htaccess"));
+// Envio do formulário por e-mail. O destino fica em enviar-config.php, criado só no servidor.
+copyFileSync(join(root, "hosting/enviar.php"), join(root, "dist/enviar.php"));
 rmSync(join(root, "dist/.nojekyll"), { force: true });
 rmSync(join(root, "dist/CNAME"), { force: true });
 
 const zip = join(root, "hosting/parceiros-operumdata-hostgator.zip");
 rmSync(zip, { force: true });
-execSync(`zip -qr "${zip}" .`, { cwd: join(root, "dist"), stdio: "inherit" });
+// Windows não tem zip: usa o tar do sistema, que também gera .zip.
+const cmd = process.platform === "win32" ? `"${join(process.env.SystemRoot || "C:\\Windows", "System32", "tar.exe")}" -a -c -f "${zip}" .` : `zip -qr "${zip}" .`;
+execSync(cmd, { cwd: join(root, "dist"), stdio: "inherit" });
 console.log(`Pacote pronto para ${SITE_URL}: hosting/parceiros-operumdata-hostgator.zip`);

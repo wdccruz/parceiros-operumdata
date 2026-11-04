@@ -580,6 +580,10 @@ const formulario = () => {
             <textarea id="f-obs" name="observacoes" rows="3" maxlength="600" aria-describedby="h-obs"></textarea>
             <p class="fld__hint" id="h-obs">Atividades principais, horários, dúvidas. Não inclua dados de funcionários.</p>
           </div>
+          <div class="fld-hp" aria-hidden="true">
+            <label for="f-site">Não preencha este campo</label>
+            <input id="f-site" name="site_url" type="text" tabindex="-1" autocomplete="off" />
+          </div>
           <div class="fld fld--wide fld--check">
             <input id="f-consent" name="consentimento" type="checkbox" required aria-describedby="e-consent" />
             <label for="f-consent">Autorizo a OperumData a me contatar pelo WhatsApp informado sobre esta oportunidade e li a <a href="privacidade/">política de privacidade</a>. <span class="req" aria-hidden="true">*</span></label>
@@ -836,34 +840,7 @@ ${partnersData()}`,
   });
 }
 
-export function renderPrivacy() {
-  const inst = operumdata.institucional;
-  const responsavel = inst.razaoSocial && inst.cnpj ? `${esc(inst.razaoSocial)}, CNPJ ${esc(inst.cnpj)}` : null;
-  return doc({
-    base: "../",
-    title: "Política de privacidade | OperumData Parceiros Brasil",
-    description: "Situação da política de privacidade da página OperumData Parceiros Brasil e o que ela vai informar antes da ativação do cadastro.",
-    canonical: `${site.url}privacidade/`,
-    ld: {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      url: `${site.url}privacidade/`,
-      name: "Política de privacidade | OperumData Parceiros Brasil",
-      inLanguage: "pt-BR",
-      isPartOf: { "@id": `${site.url}#website` },
-      publisher: { "@id": orgId },
-    },
-    body: `${demoBanner()}
-<header class="site-header">
-  <div class="shell site-header__inner site-header__inner--simple">
-    <a class="wordmark" href="../" aria-label="OperumData — início">${wordmarkInner()}</a>
-    <a class="btn btn--ghost btn--sm" href="../">← Voltar à página</a>
-  </div>
-</header>
-<main id="conteudo" class="legal">
-  <div class="shell legal__inner">
-    <p class="kicker"><span class="signal-dot" aria-hidden="true"></span>Privacidade</p>
-    <h1>Política de privacidade</h1>
+const politicaEmPreparacao = (responsavel) => `
     <div class="form-status" role="note">
       <strong>Política em preparação.</strong> A política completa será publicada antes da ativação do cadastro de interesse.
     </div>
@@ -887,6 +864,80 @@ export function renderPrivacy() {
       <li>como exercer seus direitos de acesso, correção e exclusão;</li>
       <li>o canal de contato do encarregado pelo tratamento de dados.</li>
     </ul>
+
+`;
+
+const politicaPublicada = (responsavel) => {
+  const email = operumdata.contato.email;
+  const contato = email ? `<a href="mailto:${esc(email)}">${esc(email)}</a>` : `<span class="pending">${PENDENTE}</span>`;
+  return `
+    <p class="legal__updated">Última atualização: ${new Date().toISOString().slice(0, 10).split("-").reverse().join("/")}</p>
+    <p>Esta política explica como a OperumData trata os dados enviados pelo cadastro de interesse desta página, conforme a Lei Geral de Proteção de Dados (Lei nº 13.709/2018, LGPD).</p>
+
+    <h2>Quem é o controlador</h2>
+    <p>OperumData${responsavel ? `, ${responsavel}` : ""}. Contato para assuntos de privacidade e para o encarregado pelo tratamento de dados: ${contato}.</p>
+
+    <h2>Quais dados coletamos</h2>
+    <p>No cadastro de interesse: nome do responsável, nome da empresa, cidade e estado, ramo de atividade, quantidade aproximada de profissionais, WhatsApp comercial e, se você quiser, observações.</p>
+
+    <h2>Para que usamos</h2>
+    <p>Somente para avaliar a possível compatibilidade da sua empresa com programas internacionais de coleta de dados e para entrar em contato com você sobre esta oportunidade, pelo WhatsApp informado.</p>
+
+    <h2>Base legal</h2>
+    <p>O seu consentimento, dado ao marcar a autorização no formulário (art. 7º, I, da LGPD), e os procedimentos preliminares relacionados a um possível contrato, a seu pedido (art. 7º, V).</p>
+
+    <h2>Como os dados são enviados e guardados</h2>
+    <p>O cadastro é enviado por conexão segura (HTTPS) e chega por e-mail à equipe da OperumData. A página não guarda os dados em banco de dados. A hospedagem do site e do e-mail é feita pela HostGator.</p>
+
+    <h2>Com quem compartilhamos</h2>
+    <p>Não vendemos nem cedemos seus dados. Se houver interesse dos dois lados, dados da empresa podem ser apresentados à organização responsável pelo programa internacional, e isso só acontece depois de conversarmos com você.</p>
+
+    <h2>Por quanto tempo</h2>
+    <p>Pelo tempo necessário para a avaliação e o contato sobre esta oportunidade, e no máximo por 2 anos sem novo contato. Depois disso os dados são apagados. Você pode pedir a exclusão antes, a qualquer momento.</p>
+
+    <h2>Seus direitos</h2>
+    <p>Você pode pedir confirmação do tratamento, acesso, correção, exclusão dos dados e revogação do consentimento, entre outros direitos do art. 18 da LGPD. Basta escrever para ${contato}. Você também pode reclamar à Autoridade Nacional de Proteção de Dados (ANPD).</p>
+
+    <h2>Cookies e medição</h2>
+    <p>${
+      tagsAtivas
+        ? `Com a sua autorização, dada na barra de cookies, a página carrega ${[tags.ga4 && "o Google Analytics (Google)", tags.metaPixel && "o Meta Pixel (Meta)"].filter(Boolean).join(" e ")} para medir visitas e a divulgação. Sem autorização, nenhum desses recursos é carregado. A sua escolha fica guardada no seu navegador e pode ser revista a qualquer momento pelo link "Cookies" no rodapé.`
+        : "A página não usa cookies nem ferramentas de análise, e não guarda informações no seu navegador."
+    }</p>
+`;
+};
+
+export function renderPrivacy() {
+  const inst = operumdata.institucional;
+  const responsavel = inst.razaoSocial && inst.cnpj ? `${esc(inst.razaoSocial)}, CNPJ ${esc(inst.cnpj)}` : null;
+  return doc({
+    base: "../",
+    title: "Política de privacidade | OperumData Parceiros Brasil",
+    description: site.privacidade.publicada
+      ? "Como a OperumData trata os dados do cadastro de interesse da página Parceiros Brasil (LGPD)."
+      : "Situação da política de privacidade da página OperumData Parceiros Brasil e o que ela vai informar antes da ativação do cadastro.",
+    canonical: `${site.url}privacidade/`,
+    ld: {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      url: `${site.url}privacidade/`,
+      name: "Política de privacidade | OperumData Parceiros Brasil",
+      inLanguage: "pt-BR",
+      isPartOf: { "@id": `${site.url}#website` },
+      publisher: { "@id": orgId },
+    },
+    body: `${demoBanner()}
+<header class="site-header">
+  <div class="shell site-header__inner site-header__inner--simple">
+    <a class="wordmark" href="../" aria-label="OperumData — início">${wordmarkInner()}</a>
+    <a class="btn btn--ghost btn--sm" href="../">← Voltar à página</a>
+  </div>
+</header>
+<main id="conteudo" class="legal">
+  <div class="shell legal__inner">
+    <p class="kicker"><span class="signal-dot" aria-hidden="true"></span>Privacidade</p>
+    <h1>Política de privacidade</h1>
+${site.privacidade.publicada ? politicaPublicada(responsavel) : politicaEmPreparacao(responsavel)}
 
     <h2>O que não coletamos nesta etapa</h2>
     <p>O cadastro de interesse não pede CPF, documentos de funcionários ou dados bancários.</p>
@@ -965,7 +1016,7 @@ Página em português para proprietários e gestores de empresas no Brasil. A Op
 ## Páginas
 
 - [Parceiros Brasil](${site.url}): oportunidade, como a captação acontece, regras de confiança, cadastro de interesse e perguntas frequentes
-- [Política de privacidade](${site.url}privacidade/): situação atual da política e o que ela vai informar (LGPD)
+- [Política de privacidade](${site.url}privacidade/): ${site.privacidade.publicada ? "como os dados do cadastro são tratados (LGPD)" : "situação atual da política e o que ela vai informar (LGPD)"}
 - [Site internacional da OperumData](${site.siteInstitucional}): operações de campo no Brasil para coleta de dados do mundo real (em inglês e português)
 
 ## Como funciona
@@ -990,7 +1041,7 @@ ${perguntas.map(([q, a]) => `### ${stripTags(q)}\n\n${stripTags(a)}`).join("\n\n
 
 ## Situação atual
 
-- Fase inicial: o cadastro de interesse da página ainda não envia dados.
+${site.formulario.endpoint ? "- O cadastro de interesse da página envia os dados à OperumData, que retorna pelo WhatsApp informado quando houver possível compatibilidade." : "- Fase inicial: o cadastro de interesse da página ainda não envia dados."}
 - A OperumData não divulga clientes, números ou projetos concluídos de coleta para IA.
 - Imagens e interfaces da página são representações ilustrativas.
 `;

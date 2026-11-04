@@ -608,3 +608,6 @@ a.wa-float { position: fixed; right: max(16px, env(safe-area-inset-right)); bott
 
 
 .partner-mark svg { width: 62%; height: 62%; fill: none; stroke: var(--steel); stroke-width: 1.4; }
+
+/* Campo anti-robô do formulário: fica fora da tela */
+.fld-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
