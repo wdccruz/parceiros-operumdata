@@ -89,11 +89,16 @@ $cab = [
 $assuntoMime = '=?UTF-8?B?' . base64_encode($assunto) . '?=';
 $corpo = implode("\r\n", $linhas);
 
-if (!empty($cfg['smtp']['senha'])) {
-  // Envio autenticado direto no provedor de e-mail (ex.: Titan). Mais confiável
-  // que mail(), que passa pelo filtro de saída da hospedagem.
+// Primeiro tenta o envio autenticado direto no provedor (ex.: Titan). Se não
+// houver senha ou o login falhar, usa o mail() do servidor, para nenhum
+// cadastro se perder. Falhas do SMTP ficam no error_log do PHP.
+$ok = false;
+$senha = $cfg['smtp']['senha'] ?? '';
+if ($senha !== '' && $senha !== 'COLE_A_SENHA_AQUI') {
   $ok = enviar_smtp($cfg['smtp'], $cfg['destino'], $assuntoMime, $corpo);
-} else {
+  if (!$ok) error_log('enviar.php: SMTP falhou, usando mail()');
+}
+if (!$ok) {
   $ok = mail($cfg['destino'], $assuntoMime, $corpo, implode("\r\n", $cab), '-f' . $remetente);
 }
 if (!$ok) responder(502, false, 'envio');
