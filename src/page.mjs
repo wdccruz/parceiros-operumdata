@@ -455,8 +455,10 @@ const quemConduz = () => `
     </div>
   </section>`;
 
-const field = (label, value) => `
-  <div class="cred__row"><dt>${label}</dt><dd>${value ? esc(value) : `<span class="pending">${PENDENTE}</span>`}</dd></div>`;
+// Campo sem dado real não aparece na página.
+const field = (label, value) =>
+  value ? `
+  <div class="cred__row"><dt>${label}</dt><dd>${esc(value)}</dd></div>` : "";
 
 const confiancaSec = () => {
   const inst = operumdata.institucional;
@@ -489,7 +491,6 @@ const confiancaSec = () => {
             <div class="cred__row"><dt>Privacidade</dt><dd><a href="privacidade/">${site.privacidade.publicada ? "Política de privacidade" : "Política em preparação"}</a></dd></div>
             <div class="cred__row" data-p-only hidden><dt>Programa internacional</dt><dd data-p-razao></dd></div>
           </dl>
-          <p class="cred__note">Campos pendentes são publicados somente com dados reais e conferidos.</p>
         </section>
       </div>
     </div>
